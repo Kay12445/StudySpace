@@ -486,18 +486,6 @@ async function joinRoom(id){
   renderRoomsList();
 }
 
-function getFakeParticipants(room){
-  const subj = room.subject.toLowerCase();
-  let pool;
-  if(subj.includes('мат')) pool=FAKE_USERS.math;
-  else if(subj.includes('прог')) pool=FAKE_USERS.prog;
-  else if(subj.includes('физ')) pool=FAKE_USERS.phys;
-  else if(subj.includes('англ')) pool=FAKE_USERS.eng;
-  else pool=FAKE_USERS.gen;
-  const colors=['#60a5fa','#4ade80','#f87171','#a78bfa','#fb923c','#34d399','#fbbf24'];
-  return pool.filter(n=>n!==myName).map((name,i)=>({name,color:colors[i%colors.length],isMe:false,status:Math.random()>.3?'focusing':'online'}));
-}
-
 function showRoom(room){
   document.getElementById('empty-state').style.display='none';
   const ar = document.getElementById('active-room');
