@@ -320,8 +320,10 @@ select.field{cursor:pointer;}
 // ════════════════════════════════════════
 //  CONFIG
 // ════════════════════════════════════════
-const BASE = 'http://localhost:3000/api';
-const CIRC_RT = 301.6; // 2π×48
+const BASE = window.location.hostname === 'localhost'
+  ? 'http://localhost:3000/api'
+  : 'https://studyspace-production-1c1f.up.railway.app/api';
+  const CIRC_RT = 301.6; // 2π×48
 
 // ════════════════════════════════════════
 //  STATE
@@ -335,13 +337,6 @@ let participants = {}; // roomId -> []
 let ws = null;
 
 // Fake participants per room (since no auth backend)
-const FAKE_USERS = {
-  math: ['Алина К.','Жансая М.','Дамир Т.','Мадина С.'],
-  prog: ['Даниэль М.','Серик А.','Нурбек К.'],
-  gen:  ['Зарина Б.','Айгерим Д.','Тимур Н.','Руслан А.','Дина Е.'],
-  phys: ['Тимур Н.','Марат С.'],
-  eng:  ['Aisha T.','Назгуль О.','Даулет К.','Айдана М.','Санжар Е.'],
-};
 
 function randomColor(){
   const colors=['#c8a96e','#60a5fa','#4ade80','#f87171','#a78bfa','#fb923c','#34d399'];
@@ -397,7 +392,11 @@ async function apiPost(p,b={}){
 // ════════════════════════════════════════
 function connectWS(){
   try{
-    ws = new WebSocket('ws://localhost:3000');
+ws = new WebSocket(
+  window.location.hostname === 'localhost'
+    ? 'ws://localhost:3000'
+    : 'wss://studyspace-production-1c1f.up.railway.app'
+);
     ws.onopen = () => {
       document.getElementById('ws-dot').style.background='var(--green)';
       ws.send(JSON.stringify({type:'ping'}));
@@ -590,35 +589,6 @@ function sendMessage(){
   renderMessages(currentRoom.id);
   scrollChat();
 
-  // Simulate reply after 2-8 seconds
-  simulateReply(currentRoom.id, text);
-}
-
-function simulateReply(roomId, userMsg){
-  const parts=(participants[roomId]||[]).filter(p=>!p.isMe);
-  if(!parts.length) return;
-  const responder=parts[Math.floor(Math.random()*parts.length)];
-  const delay=2000+Math.random()*6000;
-  const replies=getSmartReply(userMsg);
-  setTimeout(()=>{
-    if(!currentRoom||currentRoom.id!==roomId) return;
-    pushMessage(roomId,{name:responder.name,color:responder.color,text:replies,time:now(),isMe:false});
-    renderMessages(roomId);
-    scrollChat();
-  },delay);
-}
-
-function getSmartReply(msg){
-  const m=msg.toLowerCase();
-  if(m.includes('привет')||m.includes('hello')||m.includes('hi')) return ['Привет! 👋','Привет! Рад тебя видеть 😊','Привет! Начинаем работать?'][Math.floor(Math.random()*3)];
-  if(m.includes('помог')||m.includes('помоги')||m.includes('не понимаю')) return ['Конечно, объясню!','Давай разберём вместе','Покажи где именно затрудняешься'][Math.floor(Math.random()*3)];
-  if(m.includes('готов')||m.includes('начнём')||m.includes('поехали')) return ['Поехали! 🚀','Готов! Сфокусируемся','Отлично, удачи нам обоим! 💪'][Math.floor(Math.random()*3)];
-  if(m.includes('перерыв')||m.includes('отдох')) return ['Хорошая идея, 5 мин ✓','Я тоже устал немного','Возвращаемся через 5? ⏱'][Math.floor(Math.random()*3)];
-  if(m.includes('сложно')||m.includes('трудно')) return ['Не сдавайся! 💪','Это правда сложная тема...','Я в первый раз тоже долго разбирался'][Math.floor(Math.random()*3)];
-  const generic=['👍','Понял!','Ок','Согласен','Хорошая мысль!','Интересно','Продолжаем 📖','Тоже так думаю','Верно!'];
-  return generic[Math.floor(Math.random()*generic.length)];
-}
-
 function renderMessages(roomId){
   const msgs=messages[roomId]||[];
   const el=document.getElementById('chat-messages');
@@ -699,6 +669,14 @@ function roomTimerTick(){
       if(currentRoom) sendSystemMessage(`${myName} завершил сессию фокуса 🎉`);
       // Save to local state
       const ss=JSON.parse(localStorage.getItem('ss6')||'{}');
+      // После localStorage.setItem('ss6'...
+   try {
+     await fetch(BASE+'/focus/complete', {
+     method:'POST',
+     headers:{'Content-Type':'application/json','Authorization':'Bearer '+localStorage.getItem('ss_token')},
+     body: JSON.stringify({minutes: RT.wMin, subject: currentRoom?.subject || 'Общий'})
+   });
+   } catch {}
       ss.totalP=(ss.totalP||0)+1; ss.todayP=(ss.todayP||0)+1;
       ss.totalM=(ss.totalM||0)+RT.wMin; ss.todayM=(ss.todayM||0)+RT.wMin;
       const day=new Date().toISOString().slice(0,10);
