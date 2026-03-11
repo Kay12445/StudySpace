@@ -669,14 +669,6 @@ function roomTimerTick(){
       if(currentRoom) sendSystemMessage(`${myName} завершил сессию фокуса 🎉`);
       // Save to local state
       const ss=JSON.parse(localStorage.getItem('ss6')||'{}');
-      // После localStorage.setItem('ss6'...
-   try {
-     await fetch(BASE+'/focus/complete', {
-     method:'POST',
-     headers:{'Content-Type':'application/json','Authorization':'Bearer '+localStorage.getItem('ss_token')},
-     body: JSON.stringify({minutes: RT.wMin, subject: currentRoom?.subject || 'Общий'})
-   });
-   } catch {}
       ss.totalP=(ss.totalP||0)+1; ss.todayP=(ss.todayP||0)+1;
       ss.totalM=(ss.totalM||0)+RT.wMin; ss.todayM=(ss.todayM||0)+RT.wMin;
       const day=new Date().toISOString().slice(0,10);
