@@ -207,9 +207,6 @@ a:hover{text-decoration:underline}
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════
-     AUTH SCREEN
-══════════════════════════════════════════ -->
 <div id="auth-screen">
   <div class="auth-box">
     <div class="auth-logo">Study<span>Space</span></div>
@@ -218,8 +215,6 @@ a:hover{text-decoration:underline}
       <div class="auth-tab active" onclick="switchAuthTab('login')">Войти</div>
       <div class="auth-tab" onclick="switchAuthTab('register')">Регистрация</div>
     </div>
-
-    <!-- LOGIN -->
     <div id="tab-login">
       <div class="field-wrap"><div class="field-lbl">Email</div><input class="field" id="l-email" type="email" placeholder="твой@email.com"></div>
       <div class="field-wrap"><div class="field-lbl">Пароль</div><input class="field" id="l-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -227,17 +222,13 @@ a:hover{text-decoration:underline}
       <button class="btn btn-gold btn-full" onclick="doLogin()">Войти →</button>
       <div style="text-align:center;margin-top:14px;font-size:.78rem;color:var(--muted)">Нет аккаунта? <a href="#" onclick="switchAuthTab('register')">Зарегистрируйся</a></div>
     </div>
-
-    <!-- REGISTER -->
     <div id="tab-register" style="display:none">
       <div class="field-wrap"><div class="field-lbl">Имя</div><input class="field" id="r-name" placeholder="Как тебя зовут?"></div>
       <div class="field-wrap"><div class="field-lbl">Email</div><input class="field" id="r-email" type="email" placeholder="твой@email.com"></div>
       <div class="field-wrap"><div class="field-lbl">Пароль</div><input class="field" id="r-pass" type="password" placeholder="минимум 6 символов"></div>
       <div class="field-wrap">
         <div class="field-lbl">Город</div>
-        <select class="field" id="r-city">
-          <option>Шымкент</option><option>Алматы</option><option>Астана</option><option>Другой</option>
-        </select>
+        <select class="field" id="r-city"><option>Шымкент</option><option>Алматы</option><option>Астана</option><option>Другой</option></select>
       </div>
       <div class="auth-error" id="reg-err"></div>
       <button class="btn btn-gold btn-full" onclick="doRegister()">Создать аккаунт →</button>
@@ -245,12 +236,7 @@ a:hover{text-decoration:underline}
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     MAIN APP
-══════════════════════════════════════════ -->
 <div class="app" id="main-app" style="display:none">
-
-  <!-- SIDEBAR -->
   <nav class="sidebar">
     <div class="nav-logo">SS</div>
     <button class="nav-btn active" data-page="home" onclick="goto('home',this)" title="Главная">🏠<span>Главная</span></button>
@@ -266,10 +252,8 @@ a:hover{text-decoration:underline}
     <div class="nav-avatar" id="nav-av" onclick="goto('profile',document.querySelector('[data-page=profile]'))"></div>
   </nav>
 
-  <!-- PAGES -->
   <div class="main">
-
-    <!-- ── HOME ── -->
+    <!-- HOME -->
     <div class="page active" id="page-home">
       <div class="hero">
         <div class="hero-title">Учись вместе.<br><i>Продуктивнее.</i></div>
@@ -279,19 +263,16 @@ a:hover{text-decoration:underline}
           <button class="btn btn-outline" onclick="goto('timer',document.querySelector('[data-page=timer]'))">⏱ Таймер фокуса</button>
         </div>
       </div>
-
       <div class="online-strip">
         <div class="live-dot"></div>
         <span><b id="home-online">0</b> человек учатся прямо сейчас</span>
         <span style="margin-left:auto;font-size:.7rem" id="home-streak"></span>
       </div>
-
       <div class="grid3" style="margin-bottom:20px" id="home-stats">
         <div class="card"><div class="stat-num" id="hs-min">0</div><div class="stat-lbl">минут сегодня</div></div>
         <div class="card"><div class="stat-num" id="hs-sess">0</div><div class="stat-lbl">сессий всего</div></div>
         <div class="card"><div class="stat-num" id="hs-streak">0</div><div class="stat-lbl">🔥 дней стрика</div></div>
       </div>
-
       <div class="grid2">
         <div class="card">
           <div style="font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Топ рейтинга недели</div>
@@ -306,7 +287,7 @@ a:hover{text-decoration:underline}
       </div>
     </div>
 
-    <!-- ── SESSIONS ── -->
+    <!-- SESSIONS -->
     <div class="page" id="page-sessions">
       <div class="page-title">Учебные сессии</div>
       <div class="page-sub">Выбери комнату и учись вместе с другими</div>
@@ -318,7 +299,7 @@ a:hover{text-decoration:underline}
       <div class="rooms-grid" id="rooms-grid"></div>
     </div>
 
-    <!-- ── TIMER (solo) ── -->
+    <!-- TIMER -->
     <div class="page" id="page-timer">
       <div class="page-title">Таймер фокуса</div>
       <div class="page-sub">Pomodoro-техника для максимальной продуктивности</div>
@@ -350,7 +331,6 @@ a:hover{text-decoration:underline}
             </select>
           </div>
         </div>
-
         <div style="flex:1;min-width:220px">
           <div class="card" style="margin-bottom:14px">
             <div class="field-lbl" style="margin-bottom:10px">Предмет для сессии</div>
@@ -370,7 +350,7 @@ a:hover{text-decoration:underline}
       </div>
     </div>
 
-    <!-- ── LEADERBOARD ── -->
+    <!-- LEADERBOARD -->
     <div class="page" id="page-leaderboard">
       <div class="page-title">Рейтинг</div>
       <div class="page-sub">Топ учеников StudySpace</div>
@@ -382,7 +362,7 @@ a:hover{text-decoration:underline}
       <div id="lb-list"></div>
     </div>
 
-    <!-- ── MAP ── -->
+    <!-- MAP -->
     <div class="page" id="page-map">
       <div class="page-title">Места для учёбы</div>
       <div class="page-sub">Лучшие коворкинги, библиотеки и кафе твоего города</div>
@@ -394,7 +374,7 @@ a:hover{text-decoration:underline}
       <div id="map-container"></div>
     </div>
 
-    <!-- ── PROFILE ── -->
+    <!-- PROFILE -->
     <div class="page" id="page-profile">
       <div class="profile-hero">
         <div class="profile-av" id="prof-av"></div>
@@ -410,13 +390,11 @@ a:hover{text-decoration:underline}
         </div>
         <button class="btn btn-outline btn-sm" onclick="openEditProfile()">✎ Изменить</button>
       </div>
-
       <div class="grid3" style="margin-bottom:20px">
         <div class="card"><div class="stat-num" id="prof-total-min">0</div><div class="stat-lbl">Всего минут</div></div>
         <div class="card"><div class="stat-num" id="prof-total-sess">0</div><div class="stat-lbl">Сессий</div></div>
         <div class="card"><div class="stat-num" id="prof-streak">0</div><div class="stat-lbl">🔥 Стрик</div></div>
       </div>
-
       <div class="card" style="margin-bottom:14px">
         <div style="font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Публичная ссылка профиля</div>
         <div style="display:flex;gap:8px;align-items:center">
@@ -424,14 +402,13 @@ a:hover{text-decoration:underline}
           <button class="btn btn-ghost btn-sm" onclick="copyProfileLink()">Копировать</button>
         </div>
       </div>
-
       <div class="card">
         <div style="font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Bio</div>
         <div id="prof-bio" style="font-size:.84rem;color:var(--dim);line-height:1.6">—</div>
       </div>
     </div>
 
-    <!-- ── ADMIN ── -->
+    <!-- ADMIN -->
     <div class="page" id="page-admin">
       <div class="page-title">Админ-панель ⚙️</div>
       <div class="page-sub">Управление платформой StudySpace</div>
@@ -453,9 +430,8 @@ a:hover{text-decoration:underline}
         </table>
       </div>
     </div>
-
-  </div><!-- /main -->
-</div><!-- /app -->
+  </div>
+</div>
 
 <!-- IN-ROOM VIEW -->
 <div id="room-view">
@@ -541,22 +517,14 @@ a:hover{text-decoration:underline}
 <div class="toast" id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════════════
-//  CONFIG — change API_BASE after deploy
-// ═══════════════════════════════════════════════
 const API_BASE = window.location.hostname === 'localhost'
   ? 'http://localhost:3000/api'
-  : 'https://studyspace-production-1c1f.up.railway.app/api'; // ← замени после деплоя
-
+  : 'https://studyspace-production-1c1f.up.railway.app/api';
 const WS_URL = window.location.hostname === 'localhost'
   ? 'ws://localhost:3000'
   : 'wss://studyspace-production-1c1f.up.railway.app';
-
 const CIRC_LG = 515, CIRC_SM = 283;
 
-// ═══════════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════════
 let token = localStorage.getItem('ss_token') || '';
 let me = JSON.parse(localStorage.getItem('ss_me') || 'null');
 let ws = null;
@@ -568,9 +536,6 @@ let soloT = { running:false,phase:'work',sec:25*60,total:25*60,cycle:0,tmr:null,
 let rvT   = { running:false,phase:'work',sec:25*60,total:25*60,cycle:0,tmr:null,wMin:25,rMin:5 };
 let map = null;
 
-// ═══════════════════════════════════════════════
-//  UTILS
-// ═══════════════════════════════════════════════
 const $ = id => document.getElementById(id);
 const now = () => new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});
 function esc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
@@ -579,15 +544,12 @@ function fmtMin(m){ if(m<60)return m+'м'; return Math.floor(m/60)+'ч '+(m%60)+
 function medal(i){ return ['🥇','🥈','🥉'][i]||String(i+1) }
 
 let toastT;
-function toast(msg,type=''){
-  const el=$('toast'); el.textContent=msg; el.className='toast show '+(type);
-  clearTimeout(toastT); toastT=setTimeout(()=>el.className='toast',3200);
-}
+function toast(msg){ const el=$('toast'); el.textContent=msg; el.className='toast show'; clearTimeout(toastT); toastT=setTimeout(()=>el.className='toast',3200); }
 
 async function api(path,opts={}){
   const res = await fetch(API_BASE+path,{
     ...opts,
-    headers:{'Content-Type':'application/json', ...(token?{Authorization:'Bearer '+token}:{}), ...(opts.headers||{})},
+    headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{}),...(opts.headers||{})},
     body:opts.body?JSON.stringify(opts.body):undefined
   });
   const data = await res.json();
@@ -595,41 +557,29 @@ async function api(path,opts={}){
   return data;
 }
 
-// ═══════════════════════════════════════════════
-//  AUTH
-// ═══════════════════════════════════════════════
+// AUTH
 function switchAuthTab(t){
   $('tab-login').style.display=t==='login'?'':'none';
   $('tab-register').style.display=t==='register'?'':'none';
   document.querySelectorAll('.auth-tab').forEach((el,i)=>el.classList.toggle('active',(t==='login'&&i===0)||(t==='register'&&i===1)));
 }
-
 async function doLogin(){
-  const email=$('l-email').value.trim(), pass=$('l-pass').value;
+  const email=$('l-email').value.trim(),pass=$('l-pass').value;
   if(!email||!pass){$('login-err').textContent='Заполни все поля';return}
-  try{
-    const d = await api('/auth/login',{method:'POST',body:{email,password:pass}});
-    saveAuth(d); startApp();
-  }catch(e){$('login-err').textContent=e.message}
+  try{ const d=await api('/auth/login',{method:'POST',body:{email,password:pass}}); saveAuth(d); startApp(); }
+  catch(e){$('login-err').textContent=e.message}
 }
-
 async function doRegister(){
   const name=$('r-name').value.trim(),email=$('r-email').value.trim(),pass=$('r-pass').value,city=$('r-city').value;
   if(!name||!email||!pass){$('reg-err').textContent='Заполни все поля';return}
   if(pass.length<6){$('reg-err').textContent='Пароль минимум 6 символов';return}
-  try{
-    const d = await api('/auth/register',{method:'POST',body:{name,email,password:pass,city}});
-    saveAuth(d); startApp();
-  }catch(e){$('reg-err').textContent=e.message}
+  try{ const d=await api('/auth/register',{method:'POST',body:{name,email,password:pass,city}}); saveAuth(d); startApp(); }
+  catch(e){$('reg-err').textContent=e.message}
 }
-
 function saveAuth(d){ token=d.token; me=d.user; localStorage.setItem('ss_token',token); localStorage.setItem('ss_me',JSON.stringify(me)); }
-
 function logout(){ token=''; me=null; localStorage.removeItem('ss_token'); localStorage.removeItem('ss_me'); location.reload(); }
 
-// ═══════════════════════════════════════════════
-//  APP START
-// ═══════════════════════════════════════════════
+// APP START
 async function startApp(){
   $('auth-screen').style.display='none';
   $('main-app').style.display='flex';
@@ -640,7 +590,6 @@ async function startApp(){
   loadHomePage();
   renderSoloTimer();
 }
-
 function updateNavAvatar(){
   if(!me) return;
   const el=$('nav-av');
@@ -650,57 +599,49 @@ function updateNavAvatar(){
   el.style.border='2px solid '+me.avatar_color+'50';
 }
 
-// ═══════════════════════════════════════════════
-//  NAV
-// ═══════════════════════════════════════════════
-function goto(page, btn){
+// NAV
+function goto(page,btn){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
   $('page-'+page).classList.add('active');
   if(btn) btn.classList.add('active');
-
   if(page==='leaderboard') loadLB('week',document.querySelector('.lb-tab'));
   if(page==='profile') loadProfile();
   if(page==='admin') loadAdminStats();
   if(page==='map') initMap();
   if(page==='home') loadHomePage();
 }
-
 function closeModal(id){ $(id).classList.remove('open') }
 function openCreateRoom(){ $('create-room-modal').classList.add('open') }
 
-// ═══════════════════════════════════════════════
-//  WEBSOCKET
-// ═══════════════════════════════════════════════
+// WEBSOCKET
 function connectWS(){
   try{
     ws = new WebSocket(WS_URL);
-    ws.onopen = () => {
-      if(token) ws.send(JSON.stringify({type:'auth',token,color:me?.avatar_color}));
-    };
+    ws.onopen = () => { if(token) ws.send(JSON.stringify({type:'auth',token,color:me?.avatar_color})); };
     ws.onmessage = e => {
       try{
         const msg = JSON.parse(e.data);
-        if(msg.type==='online_count'){ $('home-online').textContent=msg.payload.count; }
-        if(msg.type==='chat_message' && currentRoom && msg.payload.roomId===currentRoom.id){
+        if(msg.type==='online_count') $('home-online').textContent=msg.payload.count;
+        if(msg.type==='chat_message'&&currentRoom&&msg.payload.roomId===currentRoom.id){
           if(msg.payload.name!==me?.name) pushRoomMsg(currentRoom.id,{...msg.payload,isMe:false});
           renderChat();
         }
-        if(msg.type==='user_joined' && currentRoom && msg.payload.roomId===currentRoom.id){
-          addRoomSys(currentRoom.id, msg.payload.name+' присоединился 👋');
+        if(msg.type==='user_joined'&&currentRoom&&msg.payload.roomId===currentRoom.id){
+          addRoomSys(currentRoom.id,msg.payload.name+' присоединился 👋');
           addParticipant(currentRoom.id,{name:msg.payload.name,color:msg.payload.color,status:'online'});
         }
-        if(msg.type==='user_left' && currentRoom && msg.payload.roomId===currentRoom.id){
-          addRoomSys(currentRoom.id, msg.payload.name+' покинул сессию');
-          removeParticipant(currentRoom.id, msg.payload.name);
+        if(msg.type==='user_left'&&currentRoom&&msg.payload.roomId===currentRoom.id){
+          addRoomSys(currentRoom.id,msg.payload.name+' покинул сессию');
+          removeParticipant(currentRoom.id,msg.payload.name);
         }
-        if(msg.type==='focus_start' && currentRoom && msg.payload.roomId===currentRoom.id){
-          addRoomSys(currentRoom.id, '⏱ '+msg.payload.name+' начал сессию фокуса');
-          setPartStatus(currentRoom.id, msg.payload.name,'focusing');
+        if(msg.type==='focus_start'&&currentRoom&&msg.payload.roomId===currentRoom.id){
+          addRoomSys(currentRoom.id,'⏱ '+msg.payload.name+' начал сессию фокуса');
+          setPartStatus(currentRoom.id,msg.payload.name,'focusing');
         }
-        if(msg.type==='focus_done' && currentRoom && msg.payload.roomId===currentRoom.id){
-          addRoomSys(currentRoom.id, '🎉 '+msg.payload.name+' завершил '+msg.payload.minutes+'м фокуса!');
-          setPartStatus(currentRoom.id, msg.payload.name,'online');
+        if(msg.type==='focus_done'&&currentRoom&&msg.payload.roomId===currentRoom.id){
+          addRoomSys(currentRoom.id,'🎉 '+msg.payload.name+' завершил '+msg.payload.minutes+'м фокуса!');
+          setPartStatus(currentRoom.id,msg.payload.name,'online');
         }
         if(msg.type==='leaderboard_update') renderLBRows(msg.payload.rows||[]);
         if(msg.type==='room_created'){ allRooms.push(msg.payload.room); renderRooms(); }
@@ -710,26 +651,20 @@ function connectWS(){
     ws.onclose = () => setTimeout(connectWS,3000);
   }catch{}
 }
-
 function wsSend(obj){ if(ws&&ws.readyState===1) ws.send(JSON.stringify(obj)) }
 
-// ═══════════════════════════════════════════════
-//  HOME
-// ═══════════════════════════════════════════════
+// HOME
 async function loadHomePage(){
   try{
-    // My stats
-    const me2 = await api('/auth/me');
-    me = me2.user; localStorage.setItem('ss_me',JSON.stringify(me));
-    $('hs-min').textContent = fmtMin(me.total_minutes||0);
-    $('hs-sess').textContent = me.total_sessions||0;
-    $('hs-streak').textContent = me.streak_days||0;
-    if(me.streak_days>0) $('home-streak').textContent = '🔥 Стрик: '+me.streak_days+' дн.';
+    const me2=await api('/auth/me'); me=me2.user; localStorage.setItem('ss_me',JSON.stringify(me));
+    $('hs-min').textContent=fmtMin(me.total_minutes||0);
+    $('hs-sess').textContent=me.total_sessions||0;
+    $('hs-streak').textContent=me.streak_days||0;
+    if(me.streak_days>0) $('home-streak').textContent='🔥 Стрик: '+me.streak_days+' дн.';
   }catch{}
-
   try{
-    const lb = await api('/leaderboard?limit=5');
-    $('home-lb').innerHTML = lb.rows.slice(0,5).map((r,i)=>`
+    const lb=await api('/leaderboard?limit=5');
+    $('home-lb').innerHTML=lb.rows.slice(0,5).map((r,i)=>`
       <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
         <div style="width:22px;text-align:center;font-size:.8rem">${medal(i)}</div>
         <div style="width:26px;height:26px;border-radius:50%;background:${r.avatar_color||'#c8a96e'}30;color:${r.avatar_color||'#c8a96e'};display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:600">${initials(r.name)}</div>
@@ -737,27 +672,21 @@ async function loadHomePage(){
         <div style="font-size:.78rem;color:var(--accent)">${fmtMin(r.minutes||0)}</div>
       </div>`).join('');
   }catch{}
-
   try{
-    const rooms = await api('/rooms');
-    $('home-rooms').innerHTML = rooms.data.slice(0,3).map(r=>`
-      <div style="padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="joinRoom('${r.id||r.id}')">
+    const rooms=await api('/rooms');
+    $('home-rooms').innerHTML=rooms.data.slice(0,3).map(r=>`
+      <div style="padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="joinRoom('${r.id}')">
         <div style="font-size:.83rem;font-family:var(--serif)">${esc(r.name)}</div>
-        <div style="font-size:.7rem;color:var(--muted)">${r.subject} · ${r.participants||r.participants||0} чел.</div>
+        <div style="font-size:.7rem;color:var(--muted)">${r.subject} · ${r.participants||0} чел.</div>
       </div>`).join('');
   }catch{}
 }
 
-// ═══════════════════════════════════════════════
-//  ROOMS
-// ═══════════════════════════════════════════════
+// ROOMS
 async function loadRooms(){
   try{
-    const d = await api('/rooms');
-    allRooms = d.data;
-    renderRooms();
+    const d=await api('/rooms'); allRooms=d.data; renderRooms();
   }catch{
-    // offline seed
     allRooms=[
       {id:'s1',name:'ЕНТ Sprint 🚀',host:'Алина К.',subject:'Математика',participants:14,maxParticipants:20},
       {id:'s2',name:'Deep Work Session',host:'Даниэль М.',subject:'Программирование',participants:7,maxParticipants:10},
@@ -768,23 +697,15 @@ async function loadRooms(){
     renderRooms();
   }
 }
-
 function renderRooms(){
-  const q = ($('room-search')?.value||'').toLowerCase();
-  const list = allRooms.filter(r=>!q||(r.name+r.subject).toLowerCase().includes(q));
-  const subjColor = {
-    'Математика':'rgba(96,165,250,.15)','Программирование':'rgba(167,139,250,.15)',
-    'Физика':'rgba(74,222,128,.12)','Общий':'rgba(255,255,255,.08)',
-    'Английский язык':'rgba(251,191,36,.12)','Химия':'rgba(248,113,113,.12)'
-  };
-  $('rooms-grid').innerHTML = list.length ? list.map(r=>{
+  const q=($('room-search')?.value||'').toLowerCase();
+  const list=allRooms.filter(r=>!q||(r.name+r.subject).toLowerCase().includes(q));
+  const subjColor={'Математика':'rgba(96,165,250,.15)','Программирование':'rgba(167,139,250,.15)','Физика':'rgba(74,222,128,.12)','Общий':'rgba(255,255,255,.08)','Английский язык':'rgba(251,191,36,.12)','Химия':'rgba(248,113,113,.12)'};
+  $('rooms-grid').innerHTML=list.length?list.map(r=>{
     const pct=Math.round((r.participants||0)/(r.maxParticipants||20)*100);
     const isCur=currentRoom&&currentRoom.id===r.id;
     return `<div class="room-card ${isCur?'in-room':''}" onclick="joinRoom('${r.id}')">
-      <div class="rc-top">
-        <div class="rc-name">${esc(r.name)}</div>
-        <div style="display:flex;align-items:center;gap:4px;font-size:.65rem;color:var(--green);font-weight:500"><div class="live-dot"></div>Live</div>
-      </div>
+      <div class="rc-top"><div class="rc-name">${esc(r.name)}</div><div style="display:flex;align-items:center;gap:4px;font-size:.65rem;color:var(--green);font-weight:500"><div class="live-dot"></div>Live</div></div>
       <div class="rc-host">Ведёт ${esc(r.host||r.host_name||'—')}</div>
       <div class="rc-meta">
         <span class="badge" style="background:${subjColor[r.subject]||'rgba(255,255,255,.08)'};color:var(--dim)">${esc(r.subject||'Общий')}</span>
@@ -792,58 +713,44 @@ function renderRooms(){
       </div>
       <div class="rc-bar"><div class="rc-fill" style="width:${pct}%"></div></div>
     </div>`;
-  }).join('') : '<div class="empty">Комнат не найдено</div>';
+  }).join(''):'<div class="empty">Комнат не найдено</div>';
 }
-
 async function createRoom(){
   const name=$('cr-name').value.trim();
-  if(!name){toast('Введи название','');return}
+  if(!name){toast('Введи название');return}
   try{
-    const d = await api('/rooms',{method:'POST',body:{name,subject:$('cr-subj').value,maxParticipants:$('cr-max').value}});
-    closeModal('create-room-modal');
-    allRooms.push(d.data);
-    renderRooms();
-    joinRoom(d.data.id);
-    toast('Сессия создана! ✓');
-  }catch(e){ toast(e.message,''); }
+    const d=await api('/rooms',{method:'POST',body:{name,subject:$('cr-subj').value,maxParticipants:$('cr-max').value}});
+    closeModal('create-room-modal'); allRooms.push(d.data); renderRooms(); joinRoom(d.data.id); toast('Сессия создана! ✓');
+  }catch(e){ toast(e.message); }
 }
 
-// ═══════════════════════════════════════════════
-//  JOIN / LEAVE
-// ═══════════════════════════════════════════════
+// JOIN / LEAVE
 async function joinRoom(id){
-  const room = allRooms.find(r=>r.id===id);
+  const room=allRooms.find(r=>r.id===id);
   if(!room) return;
   if(currentRoom&&currentRoom.id===id){ openRoomView(); return; }
   if(currentRoom) await doLeave(currentRoom.id);
-  currentRoom = {...room};
-
+  currentRoom={...room};
   if(!roomMessages[id]) roomMessages[id]=[];
   if(!roomParticipants[id]){
     roomParticipants[id]=[{name:me.name,color:me.avatar_color||'#c8a96e',isMe:true,status:'online'}];
   } else if(!roomParticipants[id].find(p=>p.isMe)){
     roomParticipants[id].unshift({name:me.name,color:me.avatar_color||'#c8a96e',isMe:true,status:'online'});
   }
-
   wsSend({type:'join_room',roomId:id});
   addRoomSys(id,`Добро пожаловать в "${room.name}" 📚`);
-  if(roomMessages[id].length<=1) seedFakeMessages(room);
-
   openRoomView();
   renderRooms();
 }
-
 function openRoomView(){
-  const r = currentRoom;
+  const r=currentRoom;
   $('rv-name').textContent=r.name;
   $('rv-meta').textContent=`Ведёт ${r.host||r.host_name||'—'} · ${r.subject}`;
-  const b=$('rv-subj-badge');
-  b.textContent=r.subject; b.className='badge badge-gold';
+  const b=$('rv-subj-badge'); b.textContent=r.subject; b.className='badge badge-gold';
   $('room-view').style.display='flex';
   renderChat(); renderParts();
   setTimeout(scrollChat,80);
 }
-
 function leaveRoom(){
   if(!currentRoom) return;
   doLeave(currentRoom.id);
@@ -851,14 +758,9 @@ function leaveRoom(){
   currentRoom=null;
   renderRooms();
 }
+async function doLeave(id){ try{ await api('/rooms/'+id+'/leave',{method:'POST'}) }catch{} }
 
-async function doLeave(id){
-  try{ await api('/rooms/'+id+'/leave',{method:'POST'}) }catch{}
-}
-
-// ═══════════════════════════════════════════════
-//  CHAT
-// ═══════════════════════════════════════════════
+// CHAT
 function pushRoomMsg(roomId,msg){ if(!roomMessages[roomId])roomMessages[roomId]=[]; roomMessages[roomId].push(msg); if(roomMessages[roomId].length>300)roomMessages[roomId].shift(); }
 function addRoomSys(roomId,text){ pushRoomMsg(roomId,{system:true,text,time:now()}); if(currentRoom&&currentRoom.id===roomId){renderChat();scrollChat();} }
 
@@ -871,29 +773,6 @@ function sendMsg(){
   pushRoomMsg(currentRoom.id,msg);
   wsSend({type:'chat_message',roomId:currentRoom.id,text});
   renderChat(); scrollChat();
-  maybeFakeReply(currentRoom.id,text);
-}
-
-function maybeFakeReply(roomId,userText){
-  const parts=(roomParticipants[roomId]||[]).filter(p=>!p.isMe);
-  if(!parts.length||Math.random()<0.3) return;
-  const p=parts[Math.floor(Math.random()*parts.length)];
-  const delay=1800+Math.random()*5000;
-  const replies=smartReply(userText);
-  setTimeout(()=>{
-    if(!currentRoom||currentRoom.id!==roomId) return;
-    pushRoomMsg(roomId,{name:p.name,color:p.color,text:replies,time:now(),isMe:false});
-    renderChat(); scrollChat();
-  },delay);
-}
-
-function smartReply(m){
-  const t=m.toLowerCase();
-  if(t.includes('привет')||t.includes('hello')) return ['Привет! 👋','Привет! Учимся сегодня?','Хей, рад тебя видеть 😊'][Math.floor(Math.random()*3)];
-  if(t.includes('помог')||t.includes('помоги')) return ['Конечно!','Давай разберём','Покажи где затрудняешься'][Math.floor(Math.random()*3)];
-  if(t.includes('сложно')||t.includes('трудно')) return ['Не сдавайся! 💪','Да, непросто, но ты справишься','Я тоже долго с этим разбирался'][Math.floor(Math.random()*3)];
-  const g=['👍','Понял!','Ок!','Согласен','Хорошая мысль!','Продолжаем 📖','Верно!','Интересно'];
-  return g[Math.floor(Math.random()*g.length)];
 }
 
 function renderChat(){
@@ -914,41 +793,10 @@ function renderChat(){
 }
 function scrollChat(){ const el=$('chat-msgs'); if(el) el.scrollTop=el.scrollHeight; }
 
-function seedFakeMessages(room){
-  const id=room.id;
-  const fakes=['Алина К.','Дамир Т.','Жансая М.','Серик А.'];
-  const colors=['#60a5fa','#4ade80','#a78bfa','#fb923c'];
-  const initMsgs=['Привет всем! Готов работать 💪','Начинаем! Сегодня берём сложные темы','Продуктивной учёбы всем 📚','Я уже на 2-й задаче'];
-  fakes.slice(0,3).forEach((name,i)=>{
-    setTimeout(()=>{
-      if(!currentRoom||currentRoom.id!==id) return;
-      pushRoomMsg(id,{name,color:colors[i],text:initMsgs[i],time:now(),isMe:false});
-      // also add to participants
-      if(!roomParticipants[id]) roomParticipants[id]=[];
-      if(!roomParticipants[id].find(p=>p.name===name))
-        roomParticipants[id].push({name,color:colors[i],isMe:false,status:Math.random()>.4?'focusing':'online'});
-      renderChat(); renderParts(); scrollChat();
-    },600+i*900);
-  });
-}
-
-// ═══════════════════════════════════════════════
-//  PARTICIPANTS
-// ═══════════════════════════════════════════════
-function addParticipant(roomId,p){
-  if(!roomParticipants[roomId]) roomParticipants[roomId]=[];
-  if(!roomParticipants[roomId].find(x=>x.name===p.name)) roomParticipants[roomId].push(p);
-  renderParts();
-}
-function removeParticipant(roomId,name){
-  if(roomParticipants[roomId]) roomParticipants[roomId]=roomParticipants[roomId].filter(p=>p.name!==name);
-  renderParts();
-}
-function setPartStatus(roomId,name,status){
-  const p=(roomParticipants[roomId]||[]).find(x=>x.name===name);
-  if(p) p.status=status; renderParts();
-}
-
+// PARTICIPANTS
+function addParticipant(roomId,p){ if(!roomParticipants[roomId])roomParticipants[roomId]=[]; if(!roomParticipants[roomId].find(x=>x.name===p.name))roomParticipants[roomId].push(p); renderParts(); }
+function removeParticipant(roomId,name){ if(roomParticipants[roomId])roomParticipants[roomId]=roomParticipants[roomId].filter(p=>p.name!==name); renderParts(); }
+function setPartStatus(roomId,name,status){ const p=(roomParticipants[roomId]||[]).find(x=>x.name===name); if(p)p.status=status; renderParts(); }
 function renderParts(){
   if(!currentRoom) return;
   const list=roomParticipants[currentRoom.id]||[];
@@ -962,32 +810,17 @@ function renderParts(){
     </div>`).join('');
 }
 
-// ═══════════════════════════════════════════════
-//  TIMERS
-// ═══════════════════════════════════════════════
+// TIMERS
 function toggleSoloTimer(){
-  if(soloT.running){
-    clearInterval(soloT.tmr); soloT.running=false;
-    $('solo-btn').textContent='▶ Продолжить'; $('solo-stat').textContent='Пауза';
-  }else{
-    soloT.running=true; $('solo-btn').textContent='⏸ Пауза';
-    $('solo-stat').textContent=soloT.phase==='work'?'Фокус':'Перерыв';
-    soloT.tmr=setInterval(()=>timerTick(soloT,'solo'),1000);
-  }
+  if(soloT.running){ clearInterval(soloT.tmr); soloT.running=false; $('solo-btn').textContent='▶ Продолжить'; $('solo-stat').textContent='Пауза'; }
+  else{ soloT.running=true; $('solo-btn').textContent='⏸ Пауза'; $('solo-stat').textContent=soloT.phase==='work'?'Фокус':'Перерыв'; soloT.tmr=setInterval(()=>timerTick(soloT,'solo'),1000); }
 }
 function resetSoloTimer(){ clearInterval(soloT.tmr); soloT={...soloT,running:false,phase:'work',sec:soloT.wMin*60,total:soloT.wMin*60,cycle:0,tmr:null}; $('solo-btn').textContent='▶ Старт'; $('solo-stat').textContent='Готов'; renderSoloTimer(); }
 function changeSoloDur(){ if(!soloT.running){soloT.wMin=parseInt($('solo-dur').value)||25; resetSoloTimer();} }
 
 function toggleRVTimer(){
-  if(rvT.running){
-    clearInterval(rvT.tmr); rvT.running=false;
-    $('rv-btn').textContent='▶'; $('rv-stat').textContent='Пауза';
-  }else{
-    rvT.running=true; $('rv-btn').textContent='⏸';
-    $('rv-stat').textContent=rvT.phase==='work'?'Фокус':'Перерыв';
-    rvT.tmr=setInterval(()=>timerTick(rvT,'rv'),1000);
-    if(currentRoom) wsSend({type:'focus_start',roomId:currentRoom.id});
-  }
+  if(rvT.running){ clearInterval(rvT.tmr); rvT.running=false; $('rv-btn').textContent='▶'; $('rv-stat').textContent='Пауза'; }
+  else{ rvT.running=true; $('rv-btn').textContent='⏸'; $('rv-stat').textContent=rvT.phase==='work'?'Фокус':'Перерыв'; rvT.tmr=setInterval(()=>timerTick(rvT,'rv'),1000); if(currentRoom)wsSend({type:'focus_start',roomId:currentRoom.id}); }
 }
 function resetRVTimer(){ clearInterval(rvT.tmr); rvT={...rvT,running:false,phase:'work',sec:rvT.wMin*60,total:rvT.wMin*60,cycle:0,tmr:null}; $('rv-btn').textContent='▶'; $('rv-stat').textContent='Готов'; renderRVTimer(); }
 function changeRVDur(){ if(!rvT.running){rvT.wMin=parseInt($('rv-dur').value)||25; resetRVTimer();} }
@@ -998,14 +831,11 @@ function timerTick(T,prefix){
     if(T.phase==='work'){
       T.cycle=Math.min(T.cycle+1,4); if(T.cycle>=4)T.cycle=0;
       T.phase='rest'; T.sec=T.rMin*60; T.total=T.sec;
-      const mins=T.wMin;
       toast('✦ Сессия завершена! Отдохни 5 мин');
-      // Save to backend
-      api('/focus/complete',{method:'POST',body:{minutes:mins,subject:$('solo-subject')?.value||'Общий',room_id:currentRoom?.id}}).catch(()=>{});
-      if(currentRoom) wsSend({type:'focus_done',roomId:currentRoom.id,minutes:mins});
-      // Update local stats
+      api('/focus/complete',{method:'POST',body:{minutes:T.wMin,subject:$('solo-subject')?.value||'Общий',room_id:currentRoom?.id}}).catch(()=>{});
+      if(currentRoom) wsSend({type:'focus_done',roomId:currentRoom.id,minutes:T.wMin});
       $('solo-today-sess').textContent=(parseInt($('solo-today-sess').textContent)||0)+1;
-      $('solo-today-min').textContent=(parseInt($('solo-today-min').textContent)||0)+mins;
+      $('solo-today-min').textContent=(parseInt($('solo-today-min').textContent)||0)+T.wMin;
     }else{
       T.phase='work'; T.sec=T.wMin*60; T.total=T.sec;
       toast('◷ Перерыв окончен — фокусируемся!');
@@ -1020,42 +850,32 @@ function timerTick(T,prefix){
 }
 
 function renderSoloTimer(){
-  const T=soloT;
-  const m=Math.floor(T.sec/60),s=T.sec%60;
+  const T=soloT,m=Math.floor(T.sec/60),s=T.sec%60;
   $('solo-disp').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
   $('solo-ring').style.strokeDashoffset=CIRC_LG*(1-T.sec/T.total);
   $('solo-ring').style.stroke=T.phase==='rest'?'var(--blue)':'var(--accent)';
-  document.querySelectorAll('#solo-dots .t-dot').forEach((d,i)=>{d.classList.remove('done','cur'); if(i<T.cycle)d.classList.add('done'); else if(i===T.cycle&&T.running&&T.phase==='work')d.classList.add('cur');});
+  document.querySelectorAll('#solo-dots .t-dot').forEach((d,i)=>{d.classList.remove('done','cur');if(i<T.cycle)d.classList.add('done');else if(i===T.cycle&&T.running&&T.phase==='work')d.classList.add('cur');});
 }
-
 function renderRVTimer(){
-  const T=rvT;
-  const m=Math.floor(T.sec/60),s=T.sec%60;
+  const T=rvT,m=Math.floor(T.sec/60),s=T.sec%60;
   $('rv-disp').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
   $('rv-ring').style.strokeDashoffset=CIRC_SM*(1-T.sec/T.total);
   $('rv-ring').className='t-prog'+(T.phase==='rest'?' rest':'');
-  document.querySelectorAll('#rv-dots .t-dot').forEach((d,i)=>{d.classList.remove('done','cur'); if(i<T.cycle)d.classList.add('done'); else if(i===T.cycle&&T.running&&T.phase==='work')d.classList.add('cur');});
+  document.querySelectorAll('#rv-dots .t-dot').forEach((d,i)=>{d.classList.remove('done','cur');if(i<T.cycle)d.classList.add('done');else if(i===T.cycle&&T.running&&T.phase==='work')d.classList.add('cur');});
 }
-
 function playBeep(){
   try{const ctx=new(window.AudioContext||window.webkitAudioContext)();[0,250,500].forEach(d=>{const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=880;g.gain.setValueAtTime(0,ctx.currentTime+d/1000);g.gain.linearRampToValueAtTime(.3,ctx.currentTime+d/1000+.02);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+d/1000+.4);o.connect(g);g.connect(ctx.destination);o.start(ctx.currentTime+d/1000);o.stop(ctx.currentTime+d/1000+.5)});}catch{}
 }
 
-// ═══════════════════════════════════════════════
-//  LEADERBOARD
-// ═══════════════════════════════════════════════
-async function loadLB(period, btn){
+// LEADERBOARD
+async function loadLB(period,btn){
   document.querySelectorAll('.lb-tab').forEach(t=>t.classList.remove('active'));
   if(btn) btn.classList.add('active');
-  try{
-    const d = await api('/leaderboard?period='+period+'&limit=30');
-    renderLBRows(d.rows);
-  }catch{ renderLBRows(getFakeLB()); }
+  try{ const d=await api('/leaderboard?period='+period+'&limit=30'); renderLBRows(d.rows); }catch{ renderLBRows([]); }
 }
-
 function renderLBRows(rows){
-  $('lb-list').innerHTML = rows.map((r,i)=>{
-    const isMe = r.id===me?.id;
+  $('lb-list').innerHTML=rows.length?rows.map((r,i)=>{
+    const isMe=r.id===me?.id;
     return `<div class="lb-row ${isMe?'me':''}">
       <div class="lb-rank">${medal(i)}</div>
       <div class="lb-av" style="background:${r.avatar_color||'#c8a96e'}25;color:${r.avatar_color||'#c8a96e'};border:1px solid ${r.avatar_color||'#c8a96e'}40">${initials(r.name)}</div>
@@ -1063,27 +883,15 @@ function renderLBRows(rows){
         <div class="lb-name">${esc(r.name)}${isMe?' <span style="font-size:.65rem;color:var(--accent)">(ты)</span>':''}</div>
         <div class="lb-meta">${r.city||'Шымкент'} · ${r.sessions||0} сессий · <span class="streak-badge">🔥 ${r.streak_days||0}</span></div>
       </div>
-      <div style="text-align:right">
-        <div class="lb-mins">${fmtMin(r.minutes||0)}</div>
-        <div class="lb-mins-lbl">минут</div>
-      </div>
+      <div style="text-align:right"><div class="lb-mins">${fmtMin(r.minutes||0)}</div><div class="lb-mins-lbl">минут</div></div>
     </div>`;
-  }).join('');
+  }).join(''):'<div class="empty">Нет данных — начни учиться! 📚</div>';
 }
 
-function getFakeLB(){
-  const n=['Алина К.','Даниэль М.','Зарина Б.','Тимур Н.','Aisha T.','Жансая М.','Дамир Т.'];
-  const c=['#c8a96e','#60a5fa','#4ade80','#f87171','#a78bfa','#fb923c','#34d399'];
-  return n.map((name,i)=>({id:'f'+i,name,avatar_color:c[i],city:'Шымкент',streak_days:Math.floor(Math.random()*30)+1,minutes:Math.floor(Math.random()*500)+50,sessions:Math.floor(Math.random()*25)+2})).sort((a,b)=>b.minutes-a.minutes);
-}
-
-// ═══════════════════════════════════════════════
-//  PROFILE
-// ═══════════════════════════════════════════════
+// PROFILE
 async function loadProfile(){
   if(!me) return;
   try{ const d=await api('/auth/me'); me=d.user; localStorage.setItem('ss_me',JSON.stringify(me)); }catch{}
-
   const el=$('prof-av');
   el.textContent=initials(me.name); el.style.background=me.avatar_color+'30'; el.style.color=me.avatar_color;
   $('prof-name').textContent=me.name;
@@ -1092,13 +900,9 @@ async function loadProfile(){
   $('prof-total-sess').textContent=me.total_sessions||0;
   $('prof-streak').textContent=me.streak_days||0;
   $('prof-bio').textContent=me.bio||'—';
-
-  const goal=me.weekly_goal_minutes||300;
-  const weekMin=me.weekMinutes||0;
-  const pct=Math.min(100,Math.round(weekMin/goal*100));
+  const goal=me.weekly_goal_minutes||300,weekMin=me.weekMinutes||0,pct=Math.min(100,Math.round(weekMin/goal*100));
   $('prof-goal-fill').style.width=pct+'%';
   $('prof-goal-txt').textContent=`${fmtMin(weekMin)} / ${fmtMin(goal)}`;
-
   const badges=[];
   if((me.streak_days||0)>=7) badges.push('<span class="badge badge-gold">🔥 Недельный стрик</span>');
   if((me.streak_days||0)>=30) badges.push('<span class="badge badge-gold">💎 Месячный стрик</span>');
@@ -1106,71 +910,48 @@ async function loadProfile(){
   if((me.total_sessions||0)>=50) badges.push('<span class="badge badge-blue">⚡ 50 сессий</span>');
   if((me.total_minutes||0)>=600) badges.push('<span class="badge badge-green">⏱ 10+ часов</span>');
   $('prof-badges').innerHTML=badges.join('');
-
   $('prof-link').value=window.location.origin+'/?profile='+me.id;
 }
-
 function copyProfileLink(){ navigator.clipboard.writeText($('prof-link').value); toast('Ссылка скопирована ✓'); }
-
 function openEditProfile(){
-  $('ep-name').value=me.name||'';
-  $('ep-city').value=me.city||'Шымкент';
-  $('ep-goal').value=me.weekly_goal_minutes||300;
-  $('ep-bio').value=me.bio||'';
+  $('ep-name').value=me.name||''; $('ep-city').value=me.city||'Шымкент';
+  $('ep-goal').value=me.weekly_goal_minutes||300; $('ep-bio').value=me.bio||'';
   $('edit-profile-modal').classList.add('open');
 }
-
 async function saveProfile(){
   try{
     await api('/profile',{method:'PATCH',body:{name:$('ep-name').value,city:$('ep-city').value,weekly_goal_minutes:parseInt($('ep-goal').value),bio:$('ep-bio').value}});
     me.name=$('ep-name').value; me.city=$('ep-city').value; me.weekly_goal_minutes=parseInt($('ep-goal').value); me.bio=$('ep-bio').value;
     localStorage.setItem('ss_me',JSON.stringify(me));
-    closeModal('edit-profile-modal'); loadProfile(); updateNavAvatar();
-    toast('Профиль обновлён ✓');
+    closeModal('edit-profile-modal'); loadProfile(); updateNavAvatar(); toast('Профиль обновлён ✓');
   }catch(e){ toast(e.message); }
 }
 
-// ═══════════════════════════════════════════════
-//  ADMIN
-// ═══════════════════════════════════════════════
+// ADMIN
 async function loadAdminStats(){
   try{
-    const s = await api('/admin/stats');
-    $('adm-users').textContent=s.totalUsers;
-    $('adm-mins').textContent=fmtMin(s.totalMinutes||0);
-    $('adm-sess').textContent=s.totalSessions;
-    $('adm-today').textContent=s.todaySessions;
-    $('adm-rooms').textContent=s.activeRooms;
-    $('adm-online').textContent=s.onlineNow;
-
-    const users = await api('/admin/users');
+    const s=await api('/admin/stats');
+    $('adm-users').textContent=s.totalUsers; $('adm-mins').textContent=fmtMin(s.totalMinutes||0);
+    $('adm-sess').textContent=s.totalSessions; $('adm-today').textContent=s.todaySessions;
+    $('adm-rooms').textContent=s.activeRooms; $('adm-online').textContent=s.onlineNow;
+    const users=await api('/admin/users');
     $('admin-users-body').innerHTML=users.users.map(u=>`
       <tr>
-        <td>${esc(u.name)}</td>
-        <td style="color:var(--muted)">${esc(u.email||'—')}</td>
-        <td>${u.city||'—'}</td>
+        <td>${esc(u.name)}</td><td style="color:var(--muted)">${esc(u.email||'—')}</td><td>${u.city||'—'}</td>
         <td><span class="badge ${u.role==='admin'?'badge-gold':'badge-blue'}">${u.role}</span></td>
-        <td>${fmtMin(u.total_minutes||0)}</td>
-        <td>🔥 ${u.streak_days||0}</td>
+        <td>${fmtMin(u.total_minutes||0)}</td><td>🔥 ${u.streak_days||0}</td>
         <td style="color:var(--muted);font-size:.72rem">${new Date(u.created_at).toLocaleDateString('ru')}</td>
         <td>${u.role!=='admin'?`<button class="btn btn-ghost btn-xs" onclick="makeAdmin('${u.id}')">→ Admin</button>`:''}</td>
       </tr>`).join('');
-  }catch(e){ toast('Нет доступа или нет сервера'); }
+  }catch(){ toast('Нет доступа или нет сервера'); }
 }
-
 async function makeAdmin(id){
   if(!confirm('Дать права админа?')) return;
   try{ await api('/admin/users/'+id,{method:'PATCH',body:{role:'admin'}}); toast('Готово'); loadAdminStats(); }catch(e){ toast(e.message); }
 }
 
-// ═══════════════════════════════════════════════
-//  MAP
-// ═══════════════════════════════════════════════
-const CITY_CENTERS = {
-  'Шымкент':[42.3417,69.5901],'Алматы':[43.2566,76.9286],'Астана':[51.1745,71.4492]
-};
-let currentCity='Шымкент';
-
+// MAP
+const CITY_CENTERS={'Шымкент':[42.3417,69.5901],'Алматы':[43.2566,76.9286],'Астана':[51.1745,71.4492]};
 async function initMap(){
   if(!map){
     map=L.map('map-container').setView(CITY_CENTERS['Шымкент'],13);
@@ -1178,55 +959,24 @@ async function initMap(){
   }
   loadMapPlaces('Шымкент');
 }
-
 async function loadMapPlaces(city){
-  currentCity=city;
   map.setView(CITY_CENTERS[city]||CITY_CENTERS['Шымкент'],13);
   map.eachLayer(l=>{ if(l instanceof L.Marker) map.removeLayer(l); });
   try{
     const d=await api('/places?city='+encodeURIComponent(city));
     const icon=type=>L.divIcon({html:`<div style="background:${type==='library'?'#c8a96e':type==='cowork'?'#60a5fa':'#4ade80'};width:12px;height:12px;border-radius:50%;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,.5)"></div>`,iconSize:[12,12],className:''});
-    d.data.forEach(p=>{
-      L.marker([p.lat,p.lng],{icon:icon(p.type)}).addTo(map)
-        .bindPopup(`<b>${p.name}</b><br>${p.address}<br>⭐ ${p.rating}`);
-    });
+    d.data.forEach(p=>{ L.marker([p.lat,p.lng],{icon:icon(p.type)}).addTo(map).bindPopup(`<b>${p.name}</b><br>${p.address}<br>⭐ ${p.rating}`); });
   }catch{}
 }
-
 function selectCity(city,btn){
   document.querySelectorAll('#city-tabs .btn').forEach(b=>{b.className='btn btn-ghost btn-sm'});
   btn.className='btn btn-gold btn-sm';
   if(map) loadMapPlaces(city);
 }
 
-// ═══════════════════════════════════════════════
-//  PERIODIC BACKGROUND ACTIVITY
-// ═══════════════════════════════════════════════
-setInterval(()=>{
-  if(!currentRoom) return;
-  const id=currentRoom.id;
-  const parts=(roomParticipants[id]||[]).filter(p=>!p.isMe);
-  if(!parts.length) return;
-  if(Math.random()<0.12){
-    const p=parts[Math.floor(Math.random()*parts.length)];
-    const msgs=['📖 Продолжаю изучать...','Разобрал эту тему!','Ещё 30 минут осталось','☕ Возвращаюсь в поток','Продуктивная сессия 🎯'];
-    pushRoomMsg(id,{name:p.name,color:p.color,text:msgs[Math.floor(Math.random()*msgs.length)],time:now(),isMe:false});
-    renderChat(); scrollChat();
-  }
-  if(Math.random()<0.08){
-    const p=parts[Math.floor(Math.random()*parts.length)];
-    p.status=p.status==='focusing'?'online':'focusing'; renderParts();
-  }
-},14000);
-
-// ═══════════════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════════════
-if(token&&me){
-  startApp();
-} else {
-  $('auth-screen').style.display='flex';
-}
+// INIT
+if(token&&me){ startApp(); }
+else { $('auth-screen').style.display='flex'; }
 renderSoloTimer(); renderRVTimer();
 </script>
 </body>
