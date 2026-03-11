@@ -323,7 +323,7 @@ select.field{cursor:pointer;}
 const BASE = window.location.hostname === 'localhost'
   ? 'http://localhost:3000/api'
   : 'https://studyspace-production-1c1f.up.railway.app/api';
-const CIRC_RT = 301.6; // 2π×48
+  const CIRC_RT = 301.6; // 2π×48
 
 // ════════════════════════════════════════
 //  STATE
@@ -335,6 +335,8 @@ let allRooms = [];
 let messages = {}; // roomId -> []
 let participants = {}; // roomId -> []
 let ws = null;
+
+// Fake participants per room (since no auth backend)
 
 function randomColor(){
   const colors=['#c8a96e','#60a5fa','#4ade80','#f87171','#a78bfa','#fb923c','#34d399'];
@@ -390,11 +392,11 @@ async function apiPost(p,b={}){
 // ════════════════════════════════════════
 function connectWS(){
   try{
-    ws = new WebSocket(
-      window.location.hostname === 'localhost'
-        ? 'ws://localhost:3000'
-        : 'wss://studyspace-production-1c1f.up.railway.app'
-    );
+ws = new WebSocket(
+  window.location.hostname === 'localhost'
+    ? 'ws://localhost:3000'
+    : 'wss://studyspace-production-1c1f.up.railway.app'
+);
     ws.onopen = () => {
       document.getElementById('ws-dot').style.background='var(--green)';
       ws.send(JSON.stringify({type:'ping'}));
@@ -470,12 +472,13 @@ async function joinRoom(id){
 
   // Init messages if not exists
   if(!messages[id]) messages[id] = [];
-
-  // Init participants with only the current user
   if(!participants[id]){
-    participants[id] = [{name:myName, color:myColor, isMe:true, status:'online'}];
+    // Build participants list
+    const base = getFakeParticipants(room);
+    if(!base.find(p=>p.name===myName)) base.unshift({name:myName,color:myColor,isMe:true,status:'online'});
+    participants[id] = base;
   } else if(!participants[id].find(p=>p.isMe)){
-    participants[id].unshift({name:myName, color:myColor, isMe:true, status:'online'});
+    participants[id].unshift({name:myName,color:myColor,isMe:true,status:'online'});
   }
 
   showRoom(room);
@@ -493,12 +496,31 @@ function showRoom(room){
   renderParticipants(room.id);
   resetRoomTimer();
 
-  // Welcome message on first join
+  // Add welcome message if first time
   if(messages[room.id].length===0){
     addSystemMessage(room.id, `Добро пожаловать в "${room.name}"! Удачной учёбы 📚`);
+    // Fake initial messages
+    addFakeInitMessages(room);
   }
 
   setTimeout(()=>scrollChat(),100);
+}
+
+function addFakeInitMessages(room){
+  const id = room.id;
+  const parts = participants[id]||[];
+  const fakes = parts.filter(p=>!p.isMe).slice(0,3);
+  const initMsgs = [
+    'Привет всем! Готов к работе 💪',
+    'Поехали! Сегодня разбираем сложные темы',
+    'Всем продуктивной учёбы! 🎯',
+  ];
+  fakes.forEach((p,i)=>{
+    setTimeout(()=>{
+      pushMessage(id,{name:p.name,color:p.color,text:initMsgs[i]||'Привет!',time:now(),isMe:false});
+      if(currentRoom&&currentRoom.id===id) renderMessages(id);
+    },800+i*1200);
+  });
 }
 
 function updateRoomHeader(room){
@@ -554,7 +576,6 @@ function sendMessage(){
   pushMessage(currentRoom.id, msg);
   renderMessages(currentRoom.id);
   scrollChat();
-}
 
 function renderMessages(roomId){
   const msgs=messages[roomId]||[];
@@ -610,12 +631,14 @@ function toggleRoomTimer(){
     clearInterval(RT.timer); RT.running=false;
     document.getElementById('rt-btn').textContent='▶ Продолжить';
     document.getElementById('rt-status').textContent='Пауза';
+    // Update my status
     if(currentRoom) setMyStatus('online');
   }else{
     RT.running=true;
     document.getElementById('rt-btn').textContent='⏸ Пауза';
     document.getElementById('rt-status').textContent=RT.phase==='work'?'Фокус':'Перерыв';
     RT.timer=setInterval(roomTimerTick,1000);
+    // Update my status
     if(currentRoom){ setMyStatus('focusing'); sendSystemMessage(`${myName} начал сессию фокуса ⏱`); }
   }
 }
@@ -632,21 +655,21 @@ function roomTimerTick(){
       showToast('✦ Сессия завершена! Отдохни');
       setMyStatus('online');
       if(currentRoom) sendSystemMessage(`${myName} завершил сессию фокуса 🎉`);
-      // Save stats locally
+      // Save to local state
       const ss=JSON.parse(localStorage.getItem('ss6')||'{}');
+      // После localStorage.setItem('ss6'...
+try {
+  await fetch(BASE+'/focus/complete', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+localStorage.getItem('ss_token')},
+    body: JSON.stringify({minutes: RT.wMin, subject: currentRoom?.subject || 'Общий'})
+  });
+} catch {}
       ss.totalP=(ss.totalP||0)+1; ss.todayP=(ss.todayP||0)+1;
       ss.totalM=(ss.totalM||0)+RT.wMin; ss.todayM=(ss.todayM||0)+RT.wMin;
       const day=new Date().toISOString().slice(0,10);
       ss.weekLog=ss.weekLog||{}; ss.weekLog[day]=(ss.weekLog[day]||0)+RT.wMin;
       localStorage.setItem('ss6',JSON.stringify(ss));
-      // Report to backend
-      try{
-        fetch(BASE+'/focus/complete',{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({minutes:RT.wMin,subject:currentRoom?.subject||'Общий'})
-        });
-      }catch{}
     }else{
       RT.phase='work'; RT.sec=RT.wMin*60; RT.total=RT.sec;
       document.getElementById('rt-btn').textContent='▶ Новая сессия';
@@ -740,6 +763,37 @@ function showToast(msg){
   t.textContent=msg; t.classList.add('show');
   clearTimeout(_tt); _tt=setTimeout(()=>t.classList.remove('show'),3000);
 }
+
+// ════════════════════════════════════════
+//  PERIODIC FAKE ACTIVITY
+// ════════════════════════════════════════
+setInterval(()=>{
+  if(!currentRoom) return;
+  const id=currentRoom.id;
+  const parts=(participants[id]||[]).filter(p=>!p.isMe);
+  if(!parts.length) return;
+  // Random participant sends a study message
+  if(Math.random()<0.15){
+    const p=parts[Math.floor(Math.random()*parts.length)];
+    const msgs=['📖 Продолжаю изучать...','Разобрал эту тему наконец!','Кто-нибудь делает задачу 5?','Сложновато, но справлюсь 💪','Перехожу к следующей теме','Ещё 30 минут и всё!','☕ Сделал перерыв, теперь снова в потоке'];
+    pushMessage(id,{name:p.name,color:p.color,text:msgs[Math.floor(Math.random()*msgs.length)],time:now(),isMe:false});
+    renderMessages(id); scrollChat();
+  }
+  // Random status change
+  if(Math.random()<0.1){
+    const p=parts[Math.floor(Math.random()*parts.length)];
+    p.status=p.status==='focusing'?'online':'focusing';
+    renderParticipants(id);
+  }
+},12000);
+
+// Simulate online count fluctuation
+setInterval(()=>{
+  const el=document.getElementById('online-count');
+  const cur=parseInt(el.textContent)||1;
+  const delta=Math.random()<0.3?(Math.random()<0.5?1:-1):0;
+  el.textContent=Math.max(1,cur+delta);
+},8000);
 
 // ════════════════════════════════════════
 //  INIT
