@@ -374,10 +374,14 @@ a:hover{text-decoration:underline}
     <div class="page" id="page-leaderboard">
       <div class="page-title">Рейтинг</div>
       <div class="page-sub">Топ учеников StudySpace</div>
-      <div class="lb-tabs">
-        <button class="lb-tab active" onclick="loadLB('week',this)">Неделя</button>
-        <button class="lb-tab" onclick="loadLB('month',this)">Месяц</button>
-        <button class="lb-tab" onclick="loadLB('all',this)">Всё время</button>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+        <div class="lb-tabs" style="margin-bottom:0">
+          <button class="lb-tab active" onclick="loadLB('week',this)">Неделя</button>
+          <button class="lb-tab" onclick="loadLB('month',this)">Месяц</button>
+          <button class="lb-tab" onclick="loadLB('all',this)">Всё время</button>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="loadLB(currentLBPeriod,document.querySelector('.lb-tab.active'))">↻ Обновить</button>
+        <button class="btn btn-outline btn-sm" onclick="testAddMinutes()">+ Тест 25мин</button>
       </div>
       <div id="lb-list"></div>
     </div>
@@ -961,9 +965,25 @@ function timerTick(T,prefix){
       const mins=T.wMin;
       toast('✦ Сессия завершена! Отдохни 5 мин');
       // Save to backend
-      api('/focus/complete',{method:'POST',body:{minutes:mins,subject:$('solo-subject')?.value||'Общий',room_id:currentRoom?.id}}).catch(()=>{});
+      const subject = prefix==='solo' ? ($('solo-subject')?.value||'Общий') : (currentRoom?.subject||'Общий');
+      api('/focus/complete',{method:'POST',body:{minutes:mins,subject,room_id:currentRoom?.id}})
+        .then(()=>{
+          // Refresh stats after save
+          api('/auth/me').then(d=>{
+            me=d.user; localStorage.setItem('ss_me',JSON.stringify(me));
+            $('hs-min').textContent=fmtMin(me.total_minutes||0);
+            $('hs-sess').textContent=me.total_sessions||0;
+            $('solo-today-min').textContent=fmtMin(me.total_minutes||0);
+            $('solo-today-sess').textContent=me.total_sessions||0;
+            $('prof-total-min').textContent=fmtMin(me.total_minutes||0);
+            $('prof-total-sess').textContent=me.total_sessions||0;
+          }).catch(()=>{});
+          // Refresh leaderboard if visible
+          if($('page-leaderboard').classList.contains('active')) loadLB('week',document.querySelector('.lb-tab.active'));
+        })
+        .catch(err=>console.warn('focus/complete failed:',err));
       if(currentRoom) wsSend({type:'focus_done',roomId:currentRoom.id,minutes:mins});
-      // Update local stats
+      // Update local stats immediately
       $('solo-today-sess').textContent=(parseInt($('solo-today-sess').textContent)||0)+1;
       $('solo-today-min').textContent=(parseInt($('solo-today-min').textContent)||0)+mins;
     }else{
@@ -1004,7 +1024,18 @@ function playBeep(){
 // ═══════════════════════════════════════════════
 //  LEADERBOARD
 // ═══════════════════════════════════════════════
+let currentLBPeriod = 'week';
+
+async function testAddMinutes(){
+  try{
+    await api('/focus/complete',{method:'POST',body:{minutes:25,subject:'Тест'}});
+    toast('✓ +25 минут записано!');
+    setTimeout(()=>loadLB(currentLBPeriod,document.querySelector('.lb-tab.active')),500);
+  }catch(e){ toast('Ошибка: '+e.message); }
+}
+
 async function loadLB(period, btn){
+  currentLBPeriod = period;
   document.querySelectorAll('.lb-tab').forEach(t=>t.classList.remove('active'));
   if(btn) btn.classList.add('active');
   try{
