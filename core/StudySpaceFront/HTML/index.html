@@ -759,14 +759,7 @@ async function loadRooms(){
     allRooms = d.data;
     renderRooms();
   }catch{
-    // offline seed
-    allRooms=[
-      {id:'s1',name:'ЕНТ Sprint 🚀',host:'Алина К.',subject:'Математика',participants:14,maxParticipants:20},
-      {id:'s2',name:'Deep Work Session',host:'Даниэль М.',subject:'Программирование',participants:7,maxParticipants:10},
-      {id:'s3',name:'Тихое утро 🌅',host:'Зарина Б.',subject:'Общий',participants:22,maxParticipants:50},
-      {id:'s4',name:'Физика без паники',host:'Тимур Н.',subject:'Физика',participants:4,maxParticipants:8},
-      {id:'s5',name:'Английский B2',host:'Aisha T.',subject:'Английский язык',participants:9,maxParticipants:15},
-    ];
+
     renderRooms();
   }
 }
@@ -889,15 +882,6 @@ function maybeFakeReply(roomId,userText){
   },delay);
 }
 
-function smartReply(m){
-  const t=m.toLowerCase();
-  if(t.includes('привет')||t.includes('hello')) return ['Привет! 👋','Привет! Учимся сегодня?','Хей, рад тебя видеть 😊'][Math.floor(Math.random()*3)];
-  if(t.includes('помог')||t.includes('помоги')) return ['Конечно!','Давай разберём','Покажи где затрудняешься'][Math.floor(Math.random()*3)];
-  if(t.includes('сложно')||t.includes('трудно')) return ['Не сдавайся! 💪','Да, непросто, но ты справишься','Я тоже долго с этим разбирался'][Math.floor(Math.random()*3)];
-  const g=['👍','Понял!','Ок!','Согласен','Хорошая мысль!','Продолжаем 📖','Верно!','Интересно'];
-  return g[Math.floor(Math.random()*g.length)];
-}
-
 function renderChat(){
   if(!currentRoom) return;
   const msgs=roomMessages[currentRoom.id]||[];
@@ -916,23 +900,6 @@ function renderChat(){
 }
 function scrollChat(){ const el=$('chat-msgs'); if(el) el.scrollTop=el.scrollHeight; }
 
-function seedFakeMessages(room){
-  const id=room.id;
-  const fakes=['Алина К.','Дамир Т.','Жансая М.','Серик А.'];
-  const colors=['#60a5fa','#4ade80','#a78bfa','#fb923c'];
-  const initMsgs=['Привет всем! Готов работать 💪','Начинаем! Сегодня берём сложные темы','Продуктивной учёбы всем 📚','Я уже на 2-й задаче'];
-  fakes.slice(0,3).forEach((name,i)=>{
-    setTimeout(()=>{
-      if(!currentRoom||currentRoom.id!==id) return;
-      pushRoomMsg(id,{name,color:colors[i],text:initMsgs[i],time:now(),isMe:false});
-      // also add to participants
-      if(!roomParticipants[id]) roomParticipants[id]=[];
-      if(!roomParticipants[id].find(p=>p.name===name))
-        roomParticipants[id].push({name,color:colors[i],isMe:false,status:Math.random()>.4?'focusing':'online'});
-      renderChat(); renderParts(); scrollChat();
-    },600+i*900);
-  });
-}
 
 // ═══════════════════════════════════════════════
 //  PARTICIPANTS
@@ -1092,12 +1059,6 @@ function renderLBRows(rows){
       </div>
     </div>`;
   }).join('');
-}
-
-function getFakeLB(){
-  const n=['Алина К.','Даниэль М.','Зарина Б.','Тимур Н.','Aisha T.','Жансая М.','Дамир Т.'];
-  const c=['#c8a96e','#60a5fa','#4ade80','#f87171','#a78bfa','#fb923c','#34d399'];
-  return n.map((name,i)=>({id:'f'+i,name,avatar_color:c[i],city:'Шымкент',streak_days:Math.floor(Math.random()*30)+1,minutes:Math.floor(Math.random()*500)+50,sessions:Math.floor(Math.random()*25)+2})).sort((a,b)=>b.minutes-a.minutes);
 }
 
 // ═══════════════════════════════════════════════
