@@ -35,20 +35,7 @@ const memDB = {
   streaks: new Map(),
 };
 
-// Seed default rooms
-['ЕНТ Sprint 🚀','Deep Work Session','Тихое утро 🌅','Физика без паники','Английский B2'].forEach((name,i) => {
-  const id = 'room-seed-' + i;
-  memDB.rooms.set(id, {
-    id, name,
-    host: ['Алина К.','Даниэль М.','Зарина Б.','Тимур Н.','Aisha T.'][i],
-    subject: ['Математика','Программирование','Общий','Физика','Английский язык'][i],
-    participants: [14,7,22,4,9][i],
-    maxParticipants: [20,10,50,8,15][i],
-    focusCount: [3,5,1,2,4][i],
-    active: true,
-    createdAt: new Date()
-  });
-});
+
 
 async function dbQuery(sql, params = []) {
   if (!useDB) return null;
@@ -330,23 +317,11 @@ app.get('/api/leaderboard', async (req, res) => {
       rows = (await dbQuery(sql, [limit]))?.rows || [];
     }
   } else {
-    // mem fallback with fake data
-    rows = getFakeLeaderboard();
+    rows = [];
   }
 
   res.json({ period, rows: rows.map((r,i) => ({ ...r, rank: i+1 })) });
 });
-
-function getFakeLeaderboard() {
-  const names = ['Алина К.','Даниэль М.','Зарина Б.','Тимур Н.','Aisha T.','Жансая М.','Дамир Т.','Серик А.'];
-  const colors = ['#c8a96e','#60a5fa','#4ade80','#f87171','#a78bfa','#fb923c','#34d399','#fbbf24'];
-  return names.map((name,i) => ({
-    id: 'fake-'+i, name, avatar_color: colors[i], city: 'Шымкент',
-    streak_days: Math.floor(Math.random()*30)+1,
-    minutes: Math.floor(Math.random()*400)+50,
-    sessions: Math.floor(Math.random()*20)+2
-  })).sort((a,b) => b.minutes - a.minutes);
-}
 
 // ─── ROOMS ────────────────────────────────
 app.get('/api/rooms', async (req, res) => {
