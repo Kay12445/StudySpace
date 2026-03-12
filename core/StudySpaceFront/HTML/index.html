@@ -339,9 +339,10 @@ a:hover{text-decoration:underline}
           <div class="t-dots" id="solo-dots">
             <div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div>
           </div>
-          <div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px">
+          <div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px;flex-wrap:wrap">
             <button class="btn btn-gold" id="solo-btn" onclick="toggleSoloTimer()">▶ Старт</button>
             <button class="btn btn-ghost btn-sm" onclick="resetSoloTimer()">↺</button>
+            <button class="btn btn-outline btn-sm" id="solo-finish-btn" onclick="finishEarly('solo')" style="display:none">✓ Завершить</button>
           </div>
           <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
             <div class="field-lbl" style="align-self:center">Фокус:</div>
@@ -374,14 +375,10 @@ a:hover{text-decoration:underline}
     <div class="page" id="page-leaderboard">
       <div class="page-title">Рейтинг</div>
       <div class="page-sub">Топ учеников StudySpace</div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap">
-        <div class="lb-tabs" style="margin-bottom:0">
-          <button class="lb-tab active" onclick="loadLB('week',this)">Неделя</button>
-          <button class="lb-tab" onclick="loadLB('month',this)">Месяц</button>
-          <button class="lb-tab" onclick="loadLB('all',this)">Всё время</button>
-        </div>
-        <button class="btn btn-ghost btn-sm" onclick="loadLB(currentLBPeriod,document.querySelector('.lb-tab.active'))">↻ Обновить</button>
-        <button class="btn btn-outline btn-sm" onclick="testAddMinutes()">+ Тест 25мин</button>
+      <div class="lb-tabs">
+        <button class="lb-tab active" onclick="loadLB('week',this)">Неделя</button>
+        <button class="lb-tab" onclick="loadLB('month',this)">Месяц</button>
+        <button class="lb-tab" onclick="loadLB('all',this)">Всё время</button>
       </div>
       <div id="lb-list"></div>
     </div>
@@ -493,6 +490,7 @@ a:hover{text-decoration:underline}
         <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
           <button class="btn btn-gold btn-xs" id="rv-btn" onclick="toggleRVTimer()">▶</button>
           <button class="btn btn-ghost btn-xs" onclick="resetRVTimer()">↺</button>
+          <button class="btn btn-outline btn-xs" id="rv-finish-btn" onclick="finishEarly('rv')" style="display:none">✓</button>
           <select class="field" style="width:68px;padding:4px 8px;font-size:.7rem" id="rv-dur" onchange="changeRVDur()">
             <option value="25">25м</option><option value="50">50м</option><option value="15">15м</option>
           </select>
@@ -550,11 +548,11 @@ a:hover{text-decoration:underline}
 // ═══════════════════════════════════════════════
 const API_BASE = window.location.hostname === 'localhost'
   ? 'http://localhost:3000/api'
-  : 'https://studyspace-production-1c1f.up.railway.app/api'; // ← замени после деплоя
+  : 'https://YOUR-APP.railway.app/api'; // ← замени после деплоя
 
 const WS_URL = window.location.hostname === 'localhost'
   ? 'ws://localhost:3000'
-  : 'wss://studyspace-production-1c1f.up.railway.app';
+  : 'wss://YOUR-APP.railway.app'; // ← замени после деплоя
 
 const CIRC_LG = 515, CIRC_SM = 283;
 
@@ -738,7 +736,7 @@ async function loadHomePage(){
         <div style="width:22px;text-align:center;font-size:.8rem">${medal(i)}</div>
         <div style="width:26px;height:26px;border-radius:50%;background:${r.avatar_color||'#c8a96e'}30;color:${r.avatar_color||'#c8a96e'};display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:600">${initials(r.name)}</div>
         <div style="flex:1;font-size:.8rem">${esc(r.name)}</div>
-        <div style="font-size:.78rem;color:var(--accent)">${fmtMin(parseInt(r.minutes)||0)}</div>
+        <div style="font-size:.78rem;color:var(--accent)">${fmtMin(r.minutes||0)}</div>
       </div>`).join('');
   }catch{}
 
@@ -831,6 +829,8 @@ async function joinRoom(id){
 
   wsSend({type:'join_room',roomId:id});
   addRoomSys(id,`Добро пожаловать в "${room.name}" 📚`);
+  if(roomMessages[id].length<=1) seedFakeMessages(room);
+
   openRoomView();
   renderRooms();
 }
@@ -873,9 +873,30 @@ function sendMsg(){
   pushRoomMsg(currentRoom.id,msg);
   wsSend({type:'chat_message',roomId:currentRoom.id,text});
   renderChat(); scrollChat();
+  maybeFakeReply(currentRoom.id,text);
 }
 
+function maybeFakeReply(roomId,userText){
+  const parts=(roomParticipants[roomId]||[]).filter(p=>!p.isMe);
+  if(!parts.length||Math.random()<0.3) return;
+  const p=parts[Math.floor(Math.random()*parts.length)];
+  const delay=1800+Math.random()*5000;
+  const replies=smartReply(userText);
+  setTimeout(()=>{
+    if(!currentRoom||currentRoom.id!==roomId) return;
+    pushRoomMsg(roomId,{name:p.name,color:p.color,text:replies,time:now(),isMe:false});
+    renderChat(); scrollChat();
+  },delay);
+}
 
+function smartReply(m){
+  const t=m.toLowerCase();
+  if(t.includes('привет')||t.includes('hello')) return ['Привет! 👋','Привет! Учимся сегодня?','Хей, рад тебя видеть 😊'][Math.floor(Math.random()*3)];
+  if(t.includes('помог')||t.includes('помоги')) return ['Конечно!','Давай разберём','Покажи где затрудняешься'][Math.floor(Math.random()*3)];
+  if(t.includes('сложно')||t.includes('трудно')) return ['Не сдавайся! 💪','Да, непросто, но ты справишься','Я тоже долго с этим разбирался'][Math.floor(Math.random()*3)];
+  const g=['👍','Понял!','Ок!','Согласен','Хорошая мысль!','Продолжаем 📖','Верно!','Интересно'];
+  return g[Math.floor(Math.random()*g.length)];
+}
 
 function renderChat(){
   if(!currentRoom) return;
@@ -895,6 +916,23 @@ function renderChat(){
 }
 function scrollChat(){ const el=$('chat-msgs'); if(el) el.scrollTop=el.scrollHeight; }
 
+function seedFakeMessages(room){
+  const id=room.id;
+  const fakes=['Алина К.','Дамир Т.','Жансая М.','Серик А.'];
+  const colors=['#60a5fa','#4ade80','#a78bfa','#fb923c'];
+  const initMsgs=['Привет всем! Готов работать 💪','Начинаем! Сегодня берём сложные темы','Продуктивной учёбы всем 📚','Я уже на 2-й задаче'];
+  fakes.slice(0,3).forEach((name,i)=>{
+    setTimeout(()=>{
+      if(!currentRoom||currentRoom.id!==id) return;
+      pushRoomMsg(id,{name,color:colors[i],text:initMsgs[i],time:now(),isMe:false});
+      // also add to participants
+      if(!roomParticipants[id]) roomParticipants[id]=[];
+      if(!roomParticipants[id].find(p=>p.name===name))
+        roomParticipants[id].push({name,color:colors[i],isMe:false,status:Math.random()>.4?'focusing':'online'});
+      renderChat(); renderParts(); scrollChat();
+    },600+i*900);
+  });
+}
 
 // ═══════════════════════════════════════════════
 //  PARTICIPANTS
@@ -936,10 +974,11 @@ function toggleSoloTimer(){
   }else{
     soloT.running=true; $('solo-btn').textContent='⏸ Пауза';
     $('solo-stat').textContent=soloT.phase==='work'?'Фокус':'Перерыв';
+    $('solo-finish-btn').style.display='';
     soloT.tmr=setInterval(()=>timerTick(soloT,'solo'),1000);
   }
 }
-function resetSoloTimer(){ clearInterval(soloT.tmr); soloT={...soloT,running:false,phase:'work',sec:soloT.wMin*60,total:soloT.wMin*60,cycle:0,tmr:null}; $('solo-btn').textContent='▶ Старт'; $('solo-stat').textContent='Готов'; renderSoloTimer(); }
+function resetSoloTimer(){ clearInterval(soloT.tmr); soloT={...soloT,running:false,phase:'work',sec:soloT.wMin*60,total:soloT.wMin*60,cycle:0,tmr:null}; $('solo-btn').textContent='▶ Старт'; $('solo-stat').textContent='Готов'; $('solo-finish-btn').style.display='none'; renderSoloTimer(); }
 function changeSoloDur(){ if(!soloT.running){soloT.wMin=parseInt($('solo-dur').value)||25; resetSoloTimer();} }
 
 function toggleRVTimer(){
@@ -949,6 +988,7 @@ function toggleRVTimer(){
   }else{
     rvT.running=true; $('rv-btn').textContent='⏸';
     $('rv-stat').textContent=rvT.phase==='work'?'Фокус':'Перерыв';
+    $('rv-finish-btn').style.display='';
     rvT.tmr=setInterval(()=>timerTick(rvT,'rv'),1000);
     if(currentRoom) wsSend({type:'focus_start',roomId:currentRoom.id});
   }
@@ -965,25 +1005,9 @@ function timerTick(T,prefix){
       const mins=T.wMin;
       toast('✦ Сессия завершена! Отдохни 5 мин');
       // Save to backend
-      const subject = prefix==='solo' ? ($('solo-subject')?.value||'Общий') : (currentRoom?.subject||'Общий');
-      api('/focus/complete',{method:'POST',body:{minutes:mins,subject,room_id:currentRoom?.id}})
-        .then(()=>{
-          // Refresh stats after save
-          api('/auth/me').then(d=>{
-            me=d.user; localStorage.setItem('ss_me',JSON.stringify(me));
-            $('hs-min').textContent=fmtMin(me.total_minutes||0);
-            $('hs-sess').textContent=me.total_sessions||0;
-            $('solo-today-min').textContent=fmtMin(me.total_minutes||0);
-            $('solo-today-sess').textContent=me.total_sessions||0;
-            $('prof-total-min').textContent=fmtMin(me.total_minutes||0);
-            $('prof-total-sess').textContent=me.total_sessions||0;
-          }).catch(()=>{});
-          // Refresh leaderboard if visible
-          if($('page-leaderboard').classList.contains('active')) loadLB('week',document.querySelector('.lb-tab.active'));
-        })
-        .catch(err=>console.warn('focus/complete failed:',err));
+      api('/focus/complete',{method:'POST',body:{minutes:mins,subject:$('solo-subject')?.value||'Общий',room_id:currentRoom?.id}}).catch(()=>{});
       if(currentRoom) wsSend({type:'focus_done',roomId:currentRoom.id,minutes:mins});
-      // Update local stats immediately
+      // Update local stats
       $('solo-today-sess').textContent=(parseInt($('solo-today-sess').textContent)||0)+1;
       $('solo-today-min').textContent=(parseInt($('solo-today-min').textContent)||0)+mins;
     }else{
@@ -1021,27 +1045,35 @@ function playBeep(){
   try{const ctx=new(window.AudioContext||window.webkitAudioContext)();[0,250,500].forEach(d=>{const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=880;g.gain.setValueAtTime(0,ctx.currentTime+d/1000);g.gain.linearRampToValueAtTime(.3,ctx.currentTime+d/1000+.02);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+d/1000+.4);o.connect(g);g.connect(ctx.destination);o.start(ctx.currentTime+d/1000);o.stop(ctx.currentTime+d/1000+.5)});}catch{}
 }
 
+function finishEarly(prefix){
+  const T = prefix==='solo' ? soloT : rvT;
+  if(!T.running && T.sec===T.total) return;
+  const elapsed = T.total - T.sec;
+  const mins = Math.max(1, Math.floor(elapsed/60));
+  clearInterval(T.tmr); T.running=false;
+  if(prefix==='solo'){ $('solo-btn').textContent='▶ Старт'; $('solo-stat').textContent='Готов'; $('solo-finish-btn').style.display='none'; }
+  else { $('rv-btn').textContent='▶'; $('rv-stat').textContent='Готов'; $('rv-finish-btn').style.display='none'; }
+  const subject = prefix==='solo' ? ($('solo-subject')?.value||'Общий') : (currentRoom?.subject||'Общий');
+  api('/focus/complete',{method:'POST',body:{minutes:mins,subject,room_id:currentRoom?.id}})
+    .then(()=>{
+      toast(`✓ Сохранено ${mins} мин!`);
+      api('/auth/me').then(d=>{ me=d.user; localStorage.setItem('ss_me',JSON.stringify(me)); }).catch(()=>{});
+      if($('page-leaderboard').classList.contains('active')) loadLB(currentLBPeriod,document.querySelector('.lb-tab.active'));
+    }).catch(e=>toast('Ошибка: '+e.message));
+  if(currentRoom) wsSend({type:'focus_done',roomId:currentRoom.id,minutes:mins});
+  if(prefix==='solo') resetSoloTimer(); else resetRVTimer();
+}
+
 // ═══════════════════════════════════════════════
 //  LEADERBOARD
 // ═══════════════════════════════════════════════
-let currentLBPeriod = 'week';
-
-async function testAddMinutes(){
-  try{
-    await api('/focus/complete',{method:'POST',body:{minutes:25,subject:'Тест'}});
-    toast('✓ +25 минут записано!');
-    setTimeout(()=>loadLB(currentLBPeriod,document.querySelector('.lb-tab.active')),500);
-  }catch(e){ toast('Ошибка: '+e.message); }
-}
-
 async function loadLB(period, btn){
-  currentLBPeriod = period;
   document.querySelectorAll('.lb-tab').forEach(t=>t.classList.remove('active'));
   if(btn) btn.classList.add('active');
   try{
     const d = await api('/leaderboard?period='+period+'&limit=30');
     renderLBRows(d.rows);
-  }catch{ renderLBRows([]); }
+  }catch{ renderLBRows(getFakeLB()); }
 }
 
 function renderLBRows(rows){
@@ -1055,13 +1087,18 @@ function renderLBRows(rows){
         <div class="lb-meta">${r.city||'Шымкент'} · ${r.sessions||0} сессий · <span class="streak-badge">🔥 ${r.streak_days||0}</span></div>
       </div>
       <div style="text-align:right">
-        <div class="lb-mins">${fmtMin(parseInt(r.minutes)||0)}</div>
+        <div class="lb-mins">${fmtMin(r.minutes||0)}</div>
         <div class="lb-mins-lbl">минут</div>
       </div>
     </div>`;
   }).join('');
 }
 
+function getFakeLB(){
+  const n=['Алина К.','Даниэль М.','Зарина Б.','Тимур Н.','Aisha T.','Жансая М.','Дамир Т.'];
+  const c=['#c8a96e','#60a5fa','#4ade80','#f87171','#a78bfa','#fb923c','#34d399'];
+  return n.map((name,i)=>({id:'f'+i,name,avatar_color:c[i],city:'Шымкент',streak_days:Math.floor(Math.random()*30)+1,minutes:Math.floor(Math.random()*500)+50,sessions:Math.floor(Math.random()*25)+2})).sort((a,b)=>b.minutes-a.minutes);
+}
 
 // ═══════════════════════════════════════════════
 //  PROFILE
@@ -1188,7 +1225,22 @@ function selectCity(city,btn){
 // ═══════════════════════════════════════════════
 //  PERIODIC BACKGROUND ACTIVITY
 // ═══════════════════════════════════════════════
-
+setInterval(()=>{
+  if(!currentRoom) return;
+  const id=currentRoom.id;
+  const parts=(roomParticipants[id]||[]).filter(p=>!p.isMe);
+  if(!parts.length) return;
+  if(Math.random()<0.12){
+    const p=parts[Math.floor(Math.random()*parts.length)];
+    const msgs=['📖 Продолжаю изучать...','Разобрал эту тему!','Ещё 30 минут осталось','☕ Возвращаюсь в поток','Продуктивная сессия 🎯'];
+    pushRoomMsg(id,{name:p.name,color:p.color,text:msgs[Math.floor(Math.random()*msgs.length)],time:now(),isMe:false});
+    renderChat(); scrollChat();
+  }
+  if(Math.random()<0.08){
+    const p=parts[Math.floor(Math.random()*parts.length)];
+    p.status=p.status==='focusing'?'online':'focusing'; renderParts();
+  }
+},14000);
 
 // ═══════════════════════════════════════════════
 //  INIT
