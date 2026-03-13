@@ -327,9 +327,7 @@ app.get('/api/leaderboard', async (req, res) => {
 app.get('/api/rooms', async (req, res) => {
   let rooms = [];
   if (useDB) {
-    const r = await dbQuery(`SELECT r.*, COUNT(DISTINCT p.user_id) as online
-      FROM rooms r LEFT JOIN room_participants p ON p.room_id=r.id
-      WHERE r.is_active=true GROUP BY r.id ORDER BY r.created_at DESC`);
+    const r = await dbQuery(`SELECT * FROM rooms WHERE is_active=true ORDER BY created_at DESC`);
     rooms = r?.rows || [];
   } else {
     rooms = [...memDB.rooms.values()].filter(r => r.active);
