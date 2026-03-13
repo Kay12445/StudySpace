@@ -108,10 +108,6 @@ body{font-family:var(--sans);background:var(--bg);color:var(--white);-webkit-fon
 .field:focus{border-color:rgba(200,169,110,.4);}
 select.field{cursor:pointer;}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;}
-.name-modal-bg{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.9);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;}
-.name-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:36px;width:380px;text-align:center;}
-.name-modal h2{font-family:var(--serif);font-size:1.8rem;margin-bottom:8px;}
-.name-modal p{color:var(--dim);font-size:.85rem;margin-bottom:24px;}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--bg3);border:1px solid var(--border2);color:var(--white);padding:10px 20px;border-radius:var(--r-lg);font-size:.82rem;opacity:0;transition:all .3s;z-index:1000;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 ::-webkit-scrollbar{width:4px;}
@@ -121,16 +117,6 @@ select.field{cursor:pointer;}
 </style>
 </head>
 <body>
-
-<div class="name-modal-bg" id="name-modal">
-  <div class="name-modal">
-    <div style="font-size:2.5rem;margin-bottom:12px">📚</div>
-    <h2>Добро пожаловать!</h2>
-    <p>Как тебя зовут? Это имя увидят другие участники сессии.</p>
-    <input type="text" class="field" id="name-input" placeholder="Твоё имя..." style="text-align:center;margin-bottom:14px" maxlength="20" onkeydown="if(event.key==='Enter')confirmName()">
-    <button class="btn btn-gold btn-full" onclick="confirmName()">Войти →</button>
-  </div>
-</div>
 
 <div class="app">
   <div class="sidebar">
@@ -269,37 +255,25 @@ let messages = {};
 let participants = {};
 let ws = null;
 
-// Try to get name from main app token
 try {
   const me = JSON.parse(localStorage.getItem('ss_me') || 'null');
-  if (me && me.name) {
-    myName = me.name;
-    myColor = me.avatar_color || '#c8a96e';
-  }
+  if (me && me.name) { myName = me.name; myColor = me.avatar_color || '#c8a96e'; }
 } catch {}
 
-function randomColor(){
-  const c=['#c8a96e','#60a5fa','#4ade80','#f87171','#a78bfa','#fb923c','#34d399'];
-  return c[Math.floor(Math.random()*c.length)];
-}
-function getInitials(name){
-  if(!name) return '?';
-  const p=name.trim().split(' ');
-  return p.length>1?p[0][0]+p[1][0]:name.slice(0,2).toUpperCase();
-}
+function randomColor(){ const c=['#c8a96e','#60a5fa','#4ade80','#f87171','#a78bfa','#fb923c','#34d399']; return c[Math.floor(Math.random()*c.length)]; }
+function getInitials(name){ if(!name)return'?'; const p=name.trim().split(' '); return p.length>1?p[0][0]+p[1][0]:name.slice(0,2).toUpperCase(); }
 function escHtml(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function now(){ return new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}); }
 function autoResize(el){ el.style.height=''; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
 
-// ── NAME ──
-function confirmName(){
-  const val=document.getElementById('name-input').value.trim();
-  if(!val){showToast('Введи имя');return;}
-  myName=val; myColor=randomColor();
-  localStorage.setItem('ss_name',myName);
-  localStorage.setItem('ss_color',myColor);
-  document.getElementById('name-modal').style.display='none';
-  init();
+// ── SAVE FOCUS ──
+function saveFocus(mins, subject, roomId){
+  if(!TOKEN || mins < 1) return;
+  fetch(BASE+'/focus/complete',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},
+    body:JSON.stringify({minutes:mins, subject:subject||'Общий', room_id:roomId||null})
+  }).then(r=>r.json()).then(()=>showToast('✓ '+mins+'м сохранено!')).catch(()=>{});
 }
 
 // ── API ──
@@ -364,30 +338,24 @@ function wsSend(obj){ if(ws&&ws.readyState===1) ws.send(JSON.stringify(obj)); }
 
 // ── ROOMS ──
 async function loadRooms(){
-  try{
-    const r=await apiFetch('/rooms');
-    allRooms=r.data;
-  }catch{
-  }
+  try{ const r=await apiFetch('/rooms'); allRooms=r.data; }catch{ allRooms=[]; }
   renderRoomsList();
 }
-
 function renderRoomsList(){
   const q=document.getElementById('search-input').value.toLowerCase();
   const list=allRooms.filter(r=>!q||(r.name+r.subject).toLowerCase().includes(q));
   const el=document.getElementById('rooms-list');
-  if(!list.length){el.innerHTML='<div style="color:var(--muted);font-size:.8rem;padding:12px">Ничего не найдено</div>';return;}
+  if(!list.length){el.innerHTML='<div style="color:var(--muted);font-size:.8rem;padding:12px">Комнат нет. Создай первую!</div>';return;}
   el.innerHTML=list.map(r=>{
     const pct=Math.round((r.participants||1)/(r.maxParticipants||20)*100);
     const isCur=currentRoom&&currentRoom.id===r.id;
     return `<div class="room-item ${isCur?'active':''}" onclick="joinRoom('${r.id}')">
       <div class="ri-top"><div class="ri-name">${escHtml(r.name)}</div><div class="ri-live"><div class="live-dot"></div>Live</div></div>
-      <div class="ri-meta">${escHtml(r.host||'—')} · ${escHtml(r.subject)} · ${r.participants||1}/${r.maxParticipants||20}</div>
+      <div class="ri-meta">${escHtml(r.host_name||r.host||'—')} · ${escHtml(r.subject)} · ${r.participants||1}/${r.max_participants||r.maxParticipants||20}</div>
       <div class="ri-bar"><div class="ri-fill" style="width:${pct}%"></div></div>
     </div>`;
   }).join('');
 }
-
 function filterRooms(){renderRoomsList();}
 async function refreshRooms(){await loadRooms();showToast('Обновлено ✓');}
 
@@ -395,15 +363,12 @@ async function refreshRooms(){await loadRooms();showToast('Обновлено �
 async function joinRoom(id){
   const room=allRooms.find(r=>r.id===id);
   if(!room) return;
-  if(currentRoom&&currentRoom.id!==id) await doLeave(currentRoom.id);
+  if(currentRoom&&currentRoom.id!==id){ saveOnLeave(); await doLeave(currentRoom.id); }
   currentRoom={...room};
   try{await apiPost('/rooms/'+id+'/join');}catch{}
   if(!messages[id]) messages[id]=[];
-  if(!participants[id]){
-    participants[id]=[{name:myName,color:myColor,isMe:true,status:'online'}];
-  } else if(!participants[id].find(p=>p.isMe)){
-    participants[id].unshift({name:myName,color:myColor,isMe:true,status:'online'});
-  }
+  if(!participants[id]) participants[id]=[{name:myName,color:myColor,isMe:true,status:'online'}];
+  else if(!participants[id].find(p=>p.isMe)) participants[id].unshift({name:myName,color:myColor,isMe:true,status:'online'});
   wsSend({type:'join_room',roomId:id});
   showRoom(room);
   addSystemMessage(id,`Добро пожаловать в "${room.name}" 📚`);
@@ -415,7 +380,7 @@ function showRoom(room){
   const ar=document.getElementById('active-room');
   ar.style.display='flex';
   document.getElementById('ar-name').textContent=room.name;
-  document.getElementById('ar-meta').textContent=`Ведёт ${room.host||'—'} · ${room.participants||1} участников · ${room.subject}`;
+  document.getElementById('ar-meta').textContent=`Ведёт ${room.host_name||room.host||'—'} · ${room.participants||1} участников · ${room.subject}`;
   document.getElementById('ar-badge').textContent=room.subject;
   resetRoomTimer();
   renderMessages(room.id);
@@ -424,8 +389,21 @@ function showRoom(room){
 }
 
 // ── LEAVE ──
+function saveOnLeave(){
+  if(!currentRoom) return;
+  const elapsed = RT.total - RT.sec;
+  const mins = Math.floor(elapsed/60);
+  if(mins >= 1){
+    saveFocus(mins, currentRoom.subject, currentRoom.id);
+    if(RT.running) wsSend({type:'focus_done',roomId:currentRoom.id,minutes:mins});
+  }
+  clearInterval(RT.timer);
+  RT.running=false;
+}
+
 async function leaveRoom(){
   if(!currentRoom) return;
+  saveOnLeave();
   wsSend({type:'leave_room',roomId:currentRoom.id});
   await doLeave(currentRoom.id);
   currentRoom=null;
@@ -434,42 +412,28 @@ async function leaveRoom(){
   resetRoomTimer();
   renderRoomsList();
 }
-async function doLeave(id){
-  try{await apiPost('/rooms/'+id+'/leave');}catch{}
-}
+async function doLeave(id){ try{await apiPost('/rooms/'+id+'/leave');}catch{} }
 
 // ── CHAT ──
-function pushMessage(roomId,msg){
-  if(!messages[roomId]) messages[roomId]=[];
-  messages[roomId].push(msg);
-  if(messages[roomId].length>300) messages[roomId].shift();
-}
-function addSystemMessage(roomId,text){
-  pushMessage(roomId,{system:true,text,time:now()});
-  if(currentRoom&&currentRoom.id===roomId){renderMessages(roomId);scrollChat();}
-}
+function pushMessage(roomId,msg){ if(!messages[roomId])messages[roomId]=[]; messages[roomId].push(msg); if(messages[roomId].length>300)messages[roomId].shift(); }
+function addSystemMessage(roomId,text){ pushMessage(roomId,{system:true,text,time:now()}); if(currentRoom&&currentRoom.id===roomId){renderMessages(roomId);scrollChat();} }
 function sendMessage(){
   if(!currentRoom) return;
   const input=document.getElementById('chat-input');
-  const text=input.value.trim();
-  if(!text) return;
+  const text=input.value.trim(); if(!text) return;
   input.value=''; input.style.height='';
-  const msg={name:myName,color:myColor,text,time:now(),isMe:true};
-  pushMessage(currentRoom.id,msg);
+  pushMessage(currentRoom.id,{name:myName,color:myColor,text,time:now(),isMe:true});
   wsSend({type:'chat_message',roomId:currentRoom.id,text});
-  renderMessages(currentRoom.id);
-  scrollChat();
+  renderMessages(currentRoom.id); scrollChat();
 }
 function renderMessages(roomId){
   const msgs=messages[roomId]||[];
-  const el=document.getElementById('chat-messages');
-  el.innerHTML=msgs.map(m=>{
+  document.getElementById('chat-messages').innerHTML=msgs.map(m=>{
     if(m.system) return `<div class="msg system"><div class="msg-bubble">${escHtml(m.text)}</div></div>`;
-    const own=m.isMe;
-    return `<div class="msg ${own?'own':''}">
+    return `<div class="msg ${m.isMe?'own':''}">
       <div class="msg-avatar" style="background:${m.color}20;color:${m.color};border:1px solid ${m.color}40">${getInitials(m.name)}</div>
       <div class="msg-bubble">
-        ${!own?`<div class="msg-name">${escHtml(m.name)}</div>`:''}
+        ${!m.isMe?`<div class="msg-name">${escHtml(m.name)}</div>`:''}
         <div class="msg-text">${escHtml(m.text)}</div>
         <div class="msg-time">${m.time}</div>
       </div>
@@ -494,19 +458,18 @@ function renderParticipants(roomId){
 // ── TIMER ──
 const RT={running:false,phase:'work',sec:25*60,total:25*60,cycle:0,timer:null,wMin:25,rMin:5};
 
-function changeTimerDur(){
-  if(RT.running) return;
-  RT.wMin=parseInt(document.getElementById('rt-dur').value)||25;
-  RT.sec=RT.wMin*60; RT.total=RT.sec; RT.phase='work';
-  renderRoomTimer();
-}
+function changeTimerDur(){ if(RT.running)return; RT.wMin=parseInt(document.getElementById('rt-dur').value)||25; RT.sec=RT.wMin*60; RT.total=RT.sec; RT.phase='work'; renderRoomTimer(); }
 
 function toggleRoomTimer(){
   if(RT.running){
+    // ПАУЗА — сохраняем прогресс
     clearInterval(RT.timer); RT.running=false;
     document.getElementById('rt-btn').textContent='▶ Продолжить';
     document.getElementById('rt-status').textContent='Пауза';
     setMyStatus('online');
+    const elapsed=RT.total-RT.sec;
+    const mins=Math.floor(elapsed/60);
+    if(mins>=1 && currentRoom) saveFocus(mins, currentRoom.subject, currentRoom.id);
   }else{
     RT.running=true;
     document.getElementById('rt-btn').textContent='⏸ Пауза';
@@ -528,7 +491,7 @@ function roomTimerTick(){
     playBeep();
     if(RT.phase==='work'){
       const mins=RT.wMin;
-      RT.cycle=Math.min(RT.cycle+1,4); if(RT.cycle>=4) RT.cycle=0;
+      RT.cycle=Math.min(RT.cycle+1,4); if(RT.cycle>=4)RT.cycle=0;
       RT.phase='rest'; RT.sec=RT.rMin*60; RT.total=RT.sec;
       document.getElementById('rt-btn').textContent='▶ Перерыв';
       document.getElementById('rt-status').textContent='Перерыв!';
@@ -538,8 +501,7 @@ function roomTimerTick(){
         addSystemMessage(currentRoom.id,myName+' завершил сессию фокуса 🎉');
         wsSend({type:'focus_done',roomId:currentRoom.id,minutes:mins});
       }
-      // Save to backend
-      saveFocus(mins);
+      saveFocus(mins, currentRoom?.subject, currentRoom?.id);
     }else{
       RT.phase='work'; RT.sec=RT.wMin*60; RT.total=RT.sec;
       document.getElementById('rt-btn').textContent='▶ Новая сессия';
@@ -564,17 +526,8 @@ function finishEarly(){
     addSystemMessage(currentRoom.id,myName+' завершил '+mins+'м фокуса 🎉');
     wsSend({type:'focus_done',roomId:currentRoom.id,minutes:mins});
   }
-  saveFocus(mins);
+  saveFocus(mins, currentRoom?.subject, currentRoom?.id);
   resetRoomTimer();
-}
-
-function saveFocus(mins){
-  if(!TOKEN) return;
-  fetch(BASE+'/focus/complete',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},
-    body:JSON.stringify({minutes:mins,subject:currentRoom?.subject||'Общий',room_id:currentRoom?.id})
-  }).then(()=>showToast('✓ '+mins+'м сохранено!')).catch(()=>{});
 }
 
 function resetRoomTimer(){
@@ -627,28 +580,19 @@ function closeCreateModal(){document.getElementById('create-modal').classList.re
 async function createRoom(){
   const name=document.getElementById('r-name').value.trim();
   if(!name){showToast('⚠ Введи название');return;}
-  let newRoom;
   try{
-    const r=await apiPost('/rooms',{name,host:myName,subject:document.getElementById('r-subj').value,maxParticipants:document.getElementById('r-max').value});
-    newRoom=r.data;
-    allRooms.push(newRoom);
-  }catch{
-    newRoom={id:'local-'+Date.now(),name,host:myName,subject:document.getElementById('r-subj').value,participants:1,maxParticipants:parseInt(document.getElementById('r-max').value)||20};
-    allRooms.push(newRoom);
-  }
-  closeCreateModal();
-  renderRoomsList();
-  await joinRoom(newRoom.id);
-  showToast('✦ Сессия создана!');
+    const r=await apiPost('/rooms',{name,subject:document.getElementById('r-subj').value,maxParticipants:document.getElementById('r-max').value});
+    allRooms.push(r.data);
+    closeCreateModal();
+    renderRoomsList();
+    await joinRoom(r.data.id);
+    showToast('✦ Сессия создана!');
+  }catch(e){ showToast('Ошибка: '+e.message); }
 }
 
 // ── TOAST ──
 let _tt;
-function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),3000);
-}
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(_tt); _tt=setTimeout(()=>t.classList.remove('show'),3000); }
 
 // ── INIT ──
 async function init(){
@@ -659,12 +603,11 @@ async function init(){
 }
 
 if(myName){
-  document.getElementById('name-modal').style.display='none';
   init();
 } else {
   const saved=localStorage.getItem('ss_name');
-  if(saved){myName=saved;myColor=localStorage.getItem('ss_color')||randomColor();document.getElementById('name-modal').style.display='none';init();}
-  else document.getElementById('name-input').focus();
+  if(saved){ myName=saved; myColor=localStorage.getItem('ss_color')||randomColor(); init(); }
+  else { window.location.href='/'; } // редирект на главную если нет имени
 }
 </script>
 </body>
