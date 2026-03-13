@@ -513,7 +513,7 @@ wss.on('connection', (ws, req) => {
         broadcastToRoom(msg.roomId, {
           type: 'chat_message',
           payload: { id: uuid(), name: user.name, color: user.color || '#c8a96e', text, time: new Date().toISOString(), roomId: msg.roomId }
-        });
+        }, ws); // exclude sender
       }
 
       if (msg.type === 'focus_start') {
