@@ -546,11 +546,11 @@ a:hover{text-decoration:underline}
 // ═══════════════════════════════════════════════
 const API_BASE = window.location.hostname === 'localhost'
   ? 'http://localhost:3000/api'
-  : 'https://studyspace-production-1c1f.up.railway.app/api'; // ← замени после деплоя
+  : 'https://YOUR-APP.railway.app/api'; // ← замени после деплоя
 
 const WS_URL = window.location.hostname === 'localhost'
   ? 'ws://localhost:3000'
-  : 'wss://studyspace-production-1c1f.up.railway.app'; // ← замени после деплоя
+  : 'wss://YOUR-APP.railway.app'; // ← замени после деплоя
 
 const CIRC_LG = 515, CIRC_SM = 283;
 
@@ -838,6 +838,15 @@ function openRoomView(){
 
 function leaveRoom(){
   if(!currentRoom) return;
+  // Сохраняем прогресс таймера при выходе
+  if(rvT.running || rvT.sec < rvT.total){
+    const elapsed = rvT.total - rvT.sec;
+    const mins = Math.floor(elapsed/60);
+    if(mins >= 1) saveMinutes(mins, currentRoom.subject||'Общий', currentRoom.id);
+  }
+  clearInterval(rvT.tmr);
+  rvT = {...rvT, running:false, phase:'work', sec:rvT.wMin*60, total:rvT.wMin*60, cycle:0, tmr:null};
+  wsSend({type:'leave_room', roomId:currentRoom.id});
   doLeave(currentRoom.id);
   $('room-view').style.display='none';
   currentRoom=null;
@@ -846,6 +855,16 @@ function leaveRoom(){
 
 async function doLeave(id){
   try{ await api('/rooms/'+id+'/leave',{method:'POST'}) }catch{}
+}
+
+// ═══════════════════════════════════════════════
+//  SAVE FOCUS HELPER
+// ═══════════════════════════════════════════════
+function saveMinutes(mins, subject, roomId){
+  if(!token || mins < 1) return;
+  api('/focus/complete',{method:'POST',body:{minutes:mins,subject:subject||'Общий',room_id:roomId||null}})
+    .then(()=>toast(`✓ ${mins} мин сохранено!`))
+    .catch(()=>{});
 }
 
 // ═══════════════════════════════════════════════
@@ -922,6 +941,11 @@ function toggleSoloTimer(){
   if(soloT.running){
     clearInterval(soloT.tmr); soloT.running=false;
     $('solo-btn').textContent='▶ Продолжить'; $('solo-stat').textContent='Пауза';
+    // Сохраняем прогресс при паузе
+    const elapsed = soloT.total - soloT.sec;
+    const mins = Math.floor(elapsed/60);
+    if(mins >= 1) saveMinutes(mins, $('solo-subject')?.value||'Общий', null);
+    soloT.savedSec = soloT.sec; // запоминаем где остановились
   }else{
     soloT.running=true; $('solo-btn').textContent='⏸ Пауза';
     $('solo-stat').textContent=soloT.phase==='work'?'Фокус':'Перерыв';
@@ -935,6 +959,11 @@ function toggleRVTimer(){
   if(rvT.running){
     clearInterval(rvT.tmr); rvT.running=false;
     $('rv-btn').textContent='▶'; $('rv-stat').textContent='Пауза';
+    // Сохраняем прогресс при паузе
+    const elapsed = rvT.total - rvT.sec;
+    const mins = Math.floor(elapsed/60);
+    if(mins >= 1) saveMinutes(mins, currentRoom?.subject||'Общий', currentRoom?.id);
+    rvT.savedSec = rvT.sec;
   }else{
     rvT.running=true; $('rv-btn').textContent='⏸';
     $('rv-stat').textContent=rvT.phase==='work'?'Фокус':'Перерыв';
@@ -954,7 +983,7 @@ function timerTick(T,prefix){
       const mins=T.wMin;
       toast('✦ Сессия завершена! Отдохни 5 мин');
       // Save to backend
-      api('/focus/complete',{method:'POST',body:{minutes:mins,subject:$('solo-subject')?.value||'Общий',room_id:currentRoom?.id}}).catch(()=>{});
+      saveMinutes(mins, $('solo-subject')?.value||'Общий', currentRoom?.id);
       if(currentRoom) wsSend({type:'focus_done',roomId:currentRoom.id,minutes:mins});
       // Update local stats
       $('solo-today-sess').textContent=(parseInt($('solo-today-sess').textContent)||0)+1;
