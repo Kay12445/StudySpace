@@ -1138,12 +1138,28 @@ async function loadAdminStats(){
         <td style="color:var(--muted)">${esc(u.email||'—')}</td>
         <td>${u.city||'—'}</td>
         <td><span class="badge ${u.role==='admin'?'badge-gold':'badge-blue'}">${u.role}</span></td>
-        <td>${fmtMin(u.total_minutes||0)}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:6px">
+            <button class="btn btn-ghost btn-xs" onclick="adjustMinutes('${u.id}', -30)" title="−30м">−</button>
+            <span>${fmtMin(u.total_minutes||0)}</span>
+            <button class="btn btn-gold btn-xs" onclick="adjustMinutes('${u.id}', 30)" title="+30м">+</button>
+          </div>
+        </td>
         <td>🔥 ${u.streak_days||0}</td>
         <td style="color:var(--muted);font-size:.72rem">${new Date(u.created_at).toLocaleDateString('ru')}</td>
         <td>${u.role!=='admin'?`<button class="btn btn-ghost btn-xs" onclick="makeAdmin('${u.id}')">→ Admin</button>`:''}</td>
       </tr>`).join('');
   }catch(e){ toast('Нет доступа или нет сервера'); }
+}
+
+async function adjustMinutes(id, delta){
+  const action = delta > 0 ? `+${delta}м` : `${delta}м`;
+  if(!confirm(`${action} пользователю?`)) return;
+  try{
+    await api('/admin/users/'+id, {method:'PATCH', body:{adjust_minutes: delta}});
+    toast('Готово: '+action);
+    loadAdminStats();
+  }catch(e){ toast(e.message); }
 }
 
 async function makeAdmin(id){

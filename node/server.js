@@ -327,7 +327,7 @@ app.get('/api/leaderboard', async (req, res) => {
 app.get('/api/rooms', async (req, res) => {
   let rooms = [];
   if (useDB) {
-    const r = await dbQuery(`SELECT * FROM rooms WHERE is_active=true ORDER BY created_at DESC`);
+    const r = await dbQuery(`SELECT * FROM rooms WHERE is_active=true AND created_at > NOW() - INTERVAL '24 hours' ORDER BY created_at DESC`);
     rooms = r?.rows || [];
   } else {
     rooms = [...memDB.rooms.values()].filter(r => r.active);
@@ -398,9 +398,17 @@ app.get('/api/admin/users', adminAuth, async (req, res) => {
 });
 
 app.patch('/api/admin/users/:id', adminAuth, async (req, res) => {
-  const { role } = req.body;
-  if (useDB) await dbQuery('UPDATE users SET role=$1 WHERE id=$2', [role, req.params.id]);
-  else { const u = memDB.users.get(req.params.id); if(u) u.role = role; }
+  const { role, adjust_minutes } = req.body;
+  if (useDB) {
+    if (role) await dbQuery('UPDATE users SET role=$1 WHERE id=$2', [role, req.params.id]);
+    if (adjust_minutes) await dbQuery('UPDATE users SET total_minutes=GREATEST(0, total_minutes+$1) WHERE id=$2', [adjust_minutes, req.params.id]);
+  } else {
+    const u = memDB.users.get(req.params.id);
+    if (u) {
+      if (role) u.role = role;
+      if (adjust_minutes) u.total_minutes = Math.max(0, (u.total_minutes||0) + adjust_minutes);
+    }
+  }
   res.json({ ok: true });
 });
 
