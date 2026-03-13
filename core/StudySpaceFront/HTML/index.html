@@ -681,6 +681,16 @@ function connectWS(){
     ws.onmessage = e => {
       try{
         const msg = JSON.parse(e.data);
+        if(msg.type==='room_joined' && currentRoom && msg.payload.roomId===currentRoom.id){
+          // Add existing members to participants list
+          (msg.payload.members||[]).forEach(m=>{
+            if(!roomParticipants[currentRoom.id]) roomParticipants[currentRoom.id]=[];
+            if(!roomParticipants[currentRoom.id].find(p=>p.name===m.name)){
+              roomParticipants[currentRoom.id].push({name:m.name,color:m.color,status:'online'});
+            }
+          });
+          renderParts();
+        }
         if(msg.type==='online_count'){ $('home-online').textContent=msg.payload.count; }
         if(msg.type==='chat_message' && currentRoom && msg.payload.roomId===currentRoom.id){
           if(msg.payload.name!==me?.name) pushRoomMsg(currentRoom.id,{...msg.payload,isMe:false});

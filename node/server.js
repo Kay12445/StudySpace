@@ -503,7 +503,13 @@ wss.on('connection', (ws, req) => {
         if (!roomOccupants.has(rid)) roomOccupants.set(rid, new Set());
         roomOccupants.get(rid).add(ws);
         broadcastToRoom(rid, { type: 'user_joined', payload: { name: user.name, color: user.color || '#c8a96e', roomId: rid } }, ws);
-        ws.send(JSON.stringify({ type: 'room_joined', payload: { roomId: rid, occupants: roomOccupants.get(rid).size } }));
+        // Send current occupants to the joining user
+        const occupantList = [];
+        for (const [ows] of [...roomOccupants.get(rid)].map(w => [w])) {
+          const u = wsUsers.get(ows);
+          if (u && ows !== ws) occupantList.push({ name: u.name, color: u.color || '#c8a96e' });
+        }
+        ws.send(JSON.stringify({ type: 'room_joined', payload: { roomId: rid, occupants: roomOccupants.get(rid).size, members: occupantList } }));
       }
 
       if (msg.type === 'chat_message') {
